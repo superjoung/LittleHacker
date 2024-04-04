@@ -1,17 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class MapCreate : MonoBehaviour
 {
+    // CSV 파일 파싱 받을 변수 공간 data_Stage[행][열]
     List<Dictionary<string, object>> data_Stage = new List<Dictionary<string, object>>();
     [SerializeField]
-    List<GameObject> renderObj = new List<GameObject>();
+    List<GameObject> renderObj = new List<GameObject>(); // 값에 따라 render해줄 오브젝트들
 
     private float mapX;
     private float mapY;
-    private Vector2 renderPos;
-    private GameObject mapBox;
+    private Vector2 renderPos; // 어떤 좌표에 지금 render해야하는가
+    private GameObject mapBox; // 담아둘 박스
 
     private void Start()
     {
@@ -42,20 +44,41 @@ public class MapCreate : MonoBehaviour
             Destroy(child.gameObject);
         }
         // X, Y 최대 구역 산정
-        mapX = data_Stage.Count - 1;
-        mapY = data_Stage[0].Count - 1;
+        mapX = data_Stage[0].Count - 1;
+        mapY = data_Stage.Count - 1;
 
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        for(int countX = 0; countX < data_Stage.Count; countX++)
+        for(int countX = 0; countX < data_Stage.Count; countX++) // 열에 있는 모든 행의 값 부터 다 출력 후 열 1칸 이동
         {
-            foreach(KeyValuePair<string, object> child in data_Stage[countX])
+            foreach(KeyValuePair<string, object> child in data_Stage[countX]) // 열에 해당하는 행 출력
             {
-                Instantiate(renderObj[int.Parse(child.Value.ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                renderPos.y -= GameManager.gridSize;
+                // 아무것도 안들어가 있는 경우 패스
+                if(child.Value == null)
+                {
+                    renderPos.x += GameManager.gridSize;
+                    continue;
+                }
+                // 일단 _ 부호 기준으로 문자열 스플릿
+                string[] splitText = child.Value.ToString().Split('_');
+
+                // 숫자 오브젝트가 생성되어야 할때
+                if(int.Parse(splitText[0].ToString()) == 3)
+                {
+                    GameObject tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                    tmpObj.GetComponent<ObjectData>().num = int.Parse(splitText[1].ToString());
+                    tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1]; 
+                }
+                else
+                {
+                    Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                }
+                Instantiate(renderObj[0], renderPos, Quaternion.identity, mapBox.transform);
+
+                renderPos.x += GameManager.gridSize;
             }
-            renderPos.y = GameManager.gridSize * (mapY / 2);
-            renderPos.x += GameManager.gridSize;
+            renderPos.x = -GameManager.gridSize * (mapX / 2);
+            renderPos.y -= GameManager.gridSize;
         }
     }
 }

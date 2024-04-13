@@ -38,8 +38,9 @@ public class MapCreate : MonoBehaviour
     private void MapRender()
     {
         mapBox = GameObject.Find("Maps");
+        GameObject tmpObj;
         // 맵 초기화
-        foreach(Transform child in mapBox.transform)
+        foreach (Transform child in mapBox.transform)
         {
             Destroy(child.gameObject);
         }
@@ -61,18 +62,25 @@ public class MapCreate : MonoBehaviour
                 }
                 // 일단 _ 부호 기준으로 문자열 스플릿
                 string[] splitText = child.Value.ToString().Split('_');
+                switch (int.Parse(splitText[0].ToString()))
+                {
+                    case 3:
+                        tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                        tmpObj.GetComponent<ObjectData>().num = int.Parse(splitText[1].ToString());
+                        tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1];
+                        break;
 
+                    case 8:
+                        tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                        tmpObj.GetComponent<ObjectData>().doorNum = int.Parse(splitText[1].ToString());
+                        tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1];
+                        break;
+
+                    default:
+                        Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                        break;
+                }
                 // 숫자 오브젝트가 생성되어야 할때
-                if(int.Parse(splitText[0].ToString()) == 3)
-                {
-                    GameObject tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                    tmpObj.GetComponent<ObjectData>().num = int.Parse(splitText[1].ToString());
-                    tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1]; 
-                }
-                else
-                {
-                    Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                }
                 Instantiate(renderObj[0], renderPos, Quaternion.identity, mapBox.transform);
 
                 renderPos.x += GameManager.gridSize;

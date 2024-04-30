@@ -62,24 +62,7 @@ public class MapCreate : MonoBehaviour
                 }
                 // 일단 _ 부호 기준으로 문자열 스플릿
                 string[] splitText = child.Value.ToString().Split('_');
-                switch (int.Parse(splitText[0].ToString()))
-                {
-                    case 3:
-                        tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                        tmpObj.GetComponent<ObjectData>().num = int.Parse(splitText[1].ToString());
-                        tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1];
-                        break;
-
-                    case 8:
-                        tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                        tmpObj.GetComponent<ObjectData>().doorNum = int.Parse(splitText[1].ToString());
-                        tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1];
-                        break;
-
-                    default:
-                        Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                        break;
-                }
+                MapSuvCreate(splitText);
                 // 숫자 오브젝트가 생성되어야 할때
                 Instantiate(renderObj[0], renderPos, Quaternion.identity, mapBox.transform);
 
@@ -87,6 +70,42 @@ public class MapCreate : MonoBehaviour
             }
             renderPos.x = -GameManager.gridSize * (mapX / 2);
             renderPos.y -= GameManager.gridSize;
+        }
+    }
+
+    void MapSuvCreate(string[] splitText)
+    {
+        GameObject tmpObj;
+        string[] suvTmpText = new string[3];
+        switch (int.Parse(splitText[0].ToString()))
+        {
+            case 2:
+                Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity);
+                break;
+            case 3:
+                tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                tmpObj.GetComponent<ObjectData>().num = int.Parse(splitText[1].ToString());
+                tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1];
+                break;
+
+            case 8:
+                tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                tmpObj.GetComponent<ObjectData>().doorNum = int.Parse(splitText[1].ToString());
+                tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1];
+                break;
+
+            case 9:
+                tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                if (splitText.Length > 1)
+                {
+                    suvTmpText.CopyTo(splitText, 1);
+                    MapSuvCreate(suvTmpText);
+                }
+                break;
+
+            default:
+                Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
+                break;
         }
     }
 }

@@ -6,17 +6,53 @@ using Newtonsoft.Json;
 
 public class MakeJsonMapData : MonoBehaviour
 {
-    // CSV 파일
-    private string csvFilePath = "SN_1_ST_1"; // 수정필요
-    // JSON 파일 저장 경로
-    private string jsonFilePath = "Assets/Resources/Map_data1.json"; // 수정필요
+    private string csvDirectoryPath;     // CSV 파일들이 있는 폴더 경로
+    private string jsonDirectoryPath;    // JSON 파일들을 저장할 폴더 경로
 
     void Start()
     {
-        SaveMapDataToJson();
+        csvDirectoryPath = "Assets/Resources/MapDatasCSV";
+        jsonDirectoryPath = "Assets/Resources/MapDatasJSON";
+
+        InitializeJsonData(); // 존재하는 Json 파일들 지우기 (필요하면 주석 처리)
+
+        // 디렉토리에서 모든 CSV 파일 목록을 가져오기
+        string[] csvFiles = Directory.GetFiles(csvDirectoryPath, "*.csv");
+
+        foreach (string csvFile in csvFiles)
+        {
+            // Debug.Log("csvFile: " + csvFile);
+
+            // 파일의 전체 경로에서 파일 이름만 추출 (확장자 제외)
+            string fileName = csvFile.Split('\\')[1].Split('.')[0];
+
+            // Debug.Log("CSV File Name: " + fileName);
+
+            // JSON 파일의 완전한 경로 생성
+            string jsonFilePath = jsonDirectoryPath + "/" + fileName + ".json";
+
+            // Debug.Log("JSON File Name: " + jsonFilePath);
+
+            SaveMapDataToJson(fileName, jsonFilePath);
+        }
     }
 
-    void SaveMapDataToJson()
+    // JSON 파일들이 저장된 폴더의 모든 파일을 지우기
+    void InitializeJsonData()
+    {
+        
+        if (Directory.Exists(jsonDirectoryPath))
+        {
+            string[] files = Directory.GetFiles(jsonDirectoryPath);
+            foreach (string file in files)
+            {
+                File.Delete(file);
+                Debug.Log("DoneFileDelete : " + file); // 적는게 느려서 확인하는 코드
+            }
+        }
+    }
+
+    void SaveMapDataToJson(string csvFilePath, string jsonFilePath)
     {
         // CSV 파일 읽기
         List<Dictionary<string, object>> csvData = CSVReader.Read(csvFilePath);
@@ -70,14 +106,14 @@ public class MakeJsonMapData : MonoBehaviour
                     wallRow.Add(0);
                     numberRow.Add("");
                     operatorRow.Add("");
-                    mapData.PlayerPosition = new Vector2(rowIndex, colIndex);
+                    mapData.PlayerPosition = new Vector2(colIndex, rowIndex);
                 }
                 else if(value.StartsWith("8_"))   // 문 위치
                 {
                     wallRow.Add(0);
                     numberRow.Add("");
                     operatorRow.Add("");
-                    mapData.DoorPosition = new Vector2(rowIndex, colIndex);
+                    mapData.DoorPosition = new Vector2(colIndex, rowIndex);
                     mapData.DoorValue = int.Parse(value.Split('_')[1]);
                 }
                 colIndex++;
@@ -104,6 +140,8 @@ public class MakeJsonMapData : MonoBehaviour
          */
 
         File.WriteAllText(jsonFilePath, json);
+
+        Debug.Log("DoneFileWrite : " + jsonFilePath); // 적는게 느려서 확인하는 코드
     }
 }
 

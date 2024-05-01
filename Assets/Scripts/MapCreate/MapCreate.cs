@@ -11,12 +11,16 @@ public class MapCreate : MonoBehaviour
 
     private float mapX;
     private float mapY;
-    private Vector2 renderPos;
-    private GameObject mapBox;
+
+    private Vector2 renderPos; // � ��ǥ�� ���� render�ؾ��ϴ°�
+    private GameObject mapBox; // ��Ƶ� �ڽ�
+    private string stageInfo;
+
 
     private void Start()
     {
-        Initialize();
+        stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+        Initialize(stageInfo);
     }
 
     private void Update()
@@ -24,13 +28,16 @@ public class MapCreate : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M))
         {
             GameManager.currentStage++;
-            Initialize();
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+
+            Initialize(stageInfo);
         }
     }
 
-    public void Initialize()
+    public void Initialize(string stageJsonData)
     {
-        TextAsset jsonData = Resources.Load<TextAsset>("Map_data1");
+        TextAsset jsonData = Resources.Load<TextAsset>("MapDatasJSON/" + stageJsonData); // �ó�����&������ �߰� �ؾ��� �ڵ� �����ʿ�
+
         if (jsonData == null)
         {
             Debug.LogError("Failed to load map data!");
@@ -99,10 +106,10 @@ public class MapCreate : MonoBehaviour
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
                             break;
-                        case "*":
+                        case "x":
                             operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "*";
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "x";
                             break;
                         case "/":
                             operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);

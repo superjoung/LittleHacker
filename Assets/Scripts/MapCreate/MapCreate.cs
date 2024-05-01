@@ -7,13 +7,15 @@ using Newtonsoft.Json;
 public class MapCreate : MonoBehaviour
 {
     [SerializeField]
-    List<GameObject> renderObj = new List<GameObject>(); // ���� ���� render���� ������Ʈ��
+    List<GameObject> renderObj = new List<GameObject>();
 
     private float mapX;
     private float mapY;
+
     private Vector2 renderPos; // � ��ǥ�� ���� render�ؾ��ϴ°�
     private GameObject mapBox; // ��Ƶ� �ڽ�
     private string stageInfo;
+
 
     private void Start()
     {
@@ -35,41 +37,37 @@ public class MapCreate : MonoBehaviour
     public void Initialize(string stageJsonData)
     {
         TextAsset jsonData = Resources.Load<TextAsset>("MapDatasJSON/" + stageJsonData); // �ó�����&������ �߰� �ؾ��� �ڵ� �����ʿ�
+
         if (jsonData == null)
         {
             Debug.LogError("Failed to load map data!");
             return;
         }
 
-        //MapData mapData = JsonUtility.FromJson<MapData>(jsonData.text); /* JsonUtility�� �������迭�� �ٷ��� ���� */
-
-        MapData mapData = JsonConvert.DeserializeObject<MapData>(jsonData.text); // �� ������ ��������
+        MapData mapData = JsonConvert.DeserializeObject<MapData>(jsonData.text);
         if (mapData == null)
         {
             Debug.LogError("Failed to parse map data!");
             return;
         }
 
-        RenderMap(mapData); // �� �����͸� ������ ������
+        RenderMap(mapData);
     }
 
     private void RenderMap(MapData mapData)
     {
         mapBox = GameObject.Find("Maps");
 
-        // �� �ʱ�ȭ
         foreach (Transform child in mapBox.transform)
         {
             Destroy(child.gameObject);
         }
 
-        // X, Y �ִ�ũ�� ����
         mapX = mapData.Walls[0].Count - 1;
         mapY = mapData.Walls.Count - 1;
 
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        // ���� ���� ������ (���̾� 0)
         for (int y = 0; y < mapData.Walls.Count; y++)
         {
             for (int x = 0; x < mapData.Walls[y].Count; x++)
@@ -82,10 +80,8 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-        // ������ ��ġ �ʱ�ȭ
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        // ���ڿ� ������ ������ (���̾� -1)
         for (int y = 0; y < mapData.Numbers.Count; y++)
         {
             for (int x = 0; x < mapData.Numbers[y].Count; x++)
@@ -130,10 +126,8 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-        // ������ ��ġ �ʱ�ȭ
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        // �÷��̾� ������ (���̾� -2)
         Vector2 playerPosition = mapData.PlayerPosition;
         Instantiate(
             renderObj[2],
@@ -141,10 +135,8 @@ public class MapCreate : MonoBehaviour
             Quaternion.identity, mapBox.transform
         );
 
-        // ������ ��ġ �ʱ�ȭ
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        // �� ������ (���̾� -2)
         Vector2 DoorPosition = mapData.DoorPosition;
         GameObject doorObj = Instantiate(
             renderObj[8],

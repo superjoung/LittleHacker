@@ -7,6 +7,7 @@ TagManager:
   - Number
   - Operator
   - Wall
+  - Door
   layers:
   - Default
   - TransparentFX
@@ -15,8 +16,8 @@ TagManager:
   - Water
   - UI
   - Wall
-  - 
-  - 
+  - Item
+  - Door
   - 
   - 
   - 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6973187442376706655}
   - component: {fileID: 2230878585990651111}
   - component: {fileID: 6437721893245704994}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Number
   m_TagString: Number
   m_Icon: {fileID: 0}
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   num: 0
+  doorNum: 0
   oper: 
 --- !u!61 &6437721893245704994
 BoxCollider2D:

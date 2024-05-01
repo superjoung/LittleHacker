@@ -9,9 +9,17 @@ public class GameManager : MonoBehaviour
     static public int currentStage = 1;
     static public float gridSize = 1;
 
+    public GameObject Canvas;
+
     private void Awake()
     {
+        SpawnInitialized();
         currentScenario = 1;
         currentStage = 1;
+    }
+
+    void SpawnInitialized()
+    {
+        Instantiate(Canvas);
     }
 }

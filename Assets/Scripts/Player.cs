@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
 
             else
             {
-                if (moveDir.x > moveDir.y) moveDir.y = 0;
+                if (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y)) moveDir.y = 0;
                 else moveDir.x = 0;
 
                 moveDir.Normalize();
@@ -89,7 +89,16 @@ public class Player : MonoBehaviour
     {
         if (moveStart)
         {
-            transform.Translate(moveDir * playerMoveSpeed * Time.deltaTime);
+            RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.5f, LayerMask.GetMask("Wall"));
+            if(hitWall)
+            {
+                moveStart = false;
+                transform.position = new Vector2(Mathf.FloorToInt(transform.position.x * 10f) / 10f, Mathf.FloorToInt(transform.position.y * 10f) / 10f);
+            }
+            else
+            {
+                transform.Translate(moveDir * playerMoveSpeed * Time.deltaTime);
+            }
         }
     }
 }

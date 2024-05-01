@@ -26,13 +26,13 @@ public class Player : MonoBehaviour
 
     public void Start()
     {
-        Initialized();
         int count = 0;
         foreach(Transform formulaInfoUi in GameObject.Find("FormulaBackGround").transform)
         {
             formulaUi[count] = formulaInfoUi.GetComponent<TMP_Text>();
             count++;
         }
+        Initialized();
     }
 
     public void Update()
@@ -53,6 +53,9 @@ public class Player : MonoBehaviour
     public void Initialized()
     {
         formula.Clear();
+        formulaUi[0].text = "";
+        formulaUi[1].text = "";
+        formulaUi[2].text = "";
     }
 
     void TouchSetup()

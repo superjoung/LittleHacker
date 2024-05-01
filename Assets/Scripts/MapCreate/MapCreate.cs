@@ -12,6 +12,7 @@ public class MapCreate : MonoBehaviour
     private float mapX;
     private float mapY;
 
+    public Player player;
     private Vector2 renderPos; // � ��ǥ�� ���� render�ؾ��ϴ°�
     private GameObject mapBox; // ��Ƶ� �ڽ�
     private string stageInfo;
@@ -21,6 +22,7 @@ public class MapCreate : MonoBehaviour
     {
         stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
         Initialize(stageInfo);
+        player = GameObject.FindWithTag("Player").GetComponent<Player>();
     }
 
     private void Update()
@@ -31,6 +33,7 @@ public class MapCreate : MonoBehaviour
             stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
 
             Initialize(stageInfo);
+            player.Initialized();
         }
     }
 

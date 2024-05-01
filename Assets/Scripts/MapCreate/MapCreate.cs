@@ -2,18 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Newtonsoft.Json;
 
 public class MapCreate : MonoBehaviour
 {
-    // CSV ÆÄÀÏ ÆÄ½Ì ¹ÞÀ» º¯¼ö °ø°£ data_Stage[Çà][¿­]
-    List<Dictionary<string, object>> data_Stage = new List<Dictionary<string, object>>();
     [SerializeField]
-    List<GameObject> renderObj = new List<GameObject>(); // °ª¿¡ µû¶ó renderÇØÁÙ ¿ÀºêÁ§Æ®µé
+    List<GameObject> renderObj = new List<GameObject>(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ renderï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½
 
     private float mapX;
     private float mapY;
-    private Vector2 renderPos; // ¾î¶² ÁÂÇ¥¿¡ Áö±Ý renderÇØ¾ßÇÏ´Â°¡
-    private GameObject mapBox; // ´ã¾ÆµÑ ¹Ú½º
+    private Vector2 renderPos; // ï¿½î¶² ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ renderï¿½Ø¾ï¿½ï¿½Ï´Â°ï¿½
+    private GameObject mapBox; // ï¿½ï¿½Æµï¿½ ï¿½Ú½ï¿½
 
     private void Start()
     {
@@ -31,46 +30,126 @@ public class MapCreate : MonoBehaviour
 
     public void Initialize()
     {
-        data_Stage = CSVReader.Read("SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString());
-        MapRender();
+        TextAsset jsonData = Resources.Load<TextAsset>("Map_data1"); // ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½&ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ø¾ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ê¿ï¿½
+        if (jsonData == null)
+        {
+            Debug.LogError("Failed to load map data!");
+            return;
+        }
+
+        //MapData mapData = JsonUtility.FromJson<MapData>(jsonData.text); /* JsonUtilityï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è¿­ï¿½ï¿½ ï¿½Ù·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ */
+
+        MapData mapData = JsonConvert.DeserializeObject<MapData>(jsonData.text); // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        if (mapData == null)
+        {
+            Debug.LogError("Failed to parse map data!");
+            return;
+        }
+
+        RenderMap(mapData); // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
-    private void MapRender()
+    private void RenderMap(MapData mapData)
     {
         mapBox = GameObject.Find("Maps");
-        GameObject tmpObj;
-        // ¸Ê ÃÊ±âÈ­
+
+        // ï¿½ï¿½ ï¿½Ê±ï¿½È­
         foreach (Transform child in mapBox.transform)
         {
             Destroy(child.gameObject);
         }
-        // X, Y ÃÖ´ë ±¸¿ª »êÁ¤
-        mapX = data_Stage[0].Count - 1;
-        mapY = data_Stage.Count - 1;
+
+        // X, Y ï¿½Ö´ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        mapX = mapData.Walls[0].Count - 1;
+        mapY = mapData.Walls.Count - 1;
 
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        for(int countX = 0; countX < data_Stage.Count; countX++) // ¿­¿¡ ÀÖ´Â ¸ðµç ÇàÀÇ °ª ºÎÅÍ ´Ù Ãâ·Â ÈÄ ¿­ 1Ä­ ÀÌµ¿
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½Ì¾ï¿½ 0)
+        for (int y = 0; y < mapData.Walls.Count; y++)
         {
-            foreach(KeyValuePair<string, object> child in data_Stage[countX]) // ¿­¿¡ ÇØ´çÇÏ´Â Çà Ãâ·Â
+            for (int x = 0; x < mapData.Walls[y].Count; x++)
             {
-                // ¾Æ¹«°Íµµ ¾Èµé¾î°¡ ÀÖ´Â °æ¿ì ÆÐ½º
-                if(child.Value == null)
-                {
-                    renderPos.x += GameManager.gridSize;
-                    continue;
-                }
-                // ÀÏ´Ü _ ºÎÈ£ ±âÁØÀ¸·Î ¹®ÀÚ¿­ ½ºÇÃ¸´
-                string[] splitText = child.Value.ToString().Split('_');
-                MapSuvCreate(splitText);
-                // ¼ýÀÚ ¿ÀºêÁ§Æ®°¡ »ý¼ºµÇ¾î¾ß ÇÒ¶§
-                Instantiate(renderObj[0], renderPos, Quaternion.identity, mapBox.transform);
-
+                GameObject prefab = mapData.Walls[y][x] == 1 ? renderObj[1] : renderObj[0];
+                Instantiate(prefab, new Vector3(renderPos.x, renderPos.y, 0), Quaternion.identity, mapBox.transform);
                 renderPos.x += GameManager.gridSize;
             }
             renderPos.x = -GameManager.gridSize * (mapX / 2);
             renderPos.y -= GameManager.gridSize;
         }
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ê±ï¿½È­
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        // ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½Ì¾ï¿½ -1)
+        for (int y = 0; y < mapData.Numbers.Count; y++)
+        {
+            for (int x = 0; x < mapData.Numbers[y].Count; x++)
+            {
+                if (!string.IsNullOrEmpty(mapData.Numbers[y][x]))
+                {
+                    GameObject numberObj = Instantiate(renderObj[3], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                    numberObj.GetComponent<ObjectData>().num = int.Parse(mapData.Numbers[y][x]);
+                    numberObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Numbers[y][x];
+                }
+                if (!string.IsNullOrEmpty(mapData.Operators[y][x]))
+                {
+                    GameObject operatorObj;
+                    switch (mapData.Operators[y][x]) {
+                        case "+":
+                            operatorObj = Instantiate(renderObj[4], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "+";
+                            break;
+                        case "-":
+                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
+                            break;
+                        case "*":
+                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "*";
+                            break;
+                        case "/":
+                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
+                            break;
+                    }
+                        
+                    
+                }
+                renderPos.x += GameManager.gridSize;
+            }
+            renderPos.x = -GameManager.gridSize * (mapX / 2);
+            renderPos.y -= GameManager.gridSize;
+        }
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ê±ï¿½È­
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½Ì¾ï¿½ -2)
+        Vector2 playerPosition = mapData.PlayerPosition;
+        Instantiate(
+            renderObj[2],
+            new Vector3(renderPos.x + playerPosition.x * GameManager.gridSize, renderPos.y - playerPosition.y * GameManager.gridSize, -2),
+            Quaternion.identity, mapBox.transform
+        );
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½Ê±ï¿½È­
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½Ì¾ï¿½ -2)
+        Vector2 DoorPosition = mapData.DoorPosition;
+        GameObject doorObj = Instantiate(
+            renderObj[8],
+            new Vector3(renderPos.x + DoorPosition.x * GameManager.gridSize, renderPos.y - DoorPosition.y * GameManager.gridSize, -2),
+            Quaternion.identity, mapBox.transform
+        );
+        doorObj.GetComponent<ObjectData>().num = mapData.DoorValue;
+        doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
+
     }
 
     void MapSuvCreate(string[] splitText)

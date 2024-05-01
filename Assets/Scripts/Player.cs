@@ -18,7 +18,6 @@ public class Player : MonoBehaviour
 
     public float playerMoveSpeed;
     private bool moveStart = false;
-    private bool bClear = false;
 
     public Dictionary<int, ObjectData> formula = new Dictionary<int, ObjectData>();
     public TMP_Text[] formulaUi = new TMP_Text[3];
@@ -27,9 +26,7 @@ public class Player : MonoBehaviour
 
     public void Start()
     {
-        formula.Clear();
-        Debug.Log(playerTouch);
-
+        Initialized();
         int count = 0;
         foreach(Transform formulaInfoUi in GameObject.Find("FormulaBackGround").transform)
         {
@@ -53,6 +50,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void Initialized()
+    {
+        formula.Clear();
+    }
 
     void TouchSetup()
     {
@@ -105,6 +106,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    // player가 움직일 때 벽에 가로막힘 판정에 대해 계산
     void PlayerMove()
     {
         int layerMask = (1 << LayerMask.NameToLayer("Wall")) + (1 << LayerMask.NameToLayer("Item"));
@@ -135,6 +137,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    // player가 수식들을얻 얻었을 경우 또는 문에 닿았을 경우를 나눠서 계산
     void PlayerGetItem()
     {
         int layerMask = (1 << LayerMask.NameToLayer("Item")) + (1 << LayerMask.NameToLayer("Door"));
@@ -191,6 +194,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    // 수식 계산 숫자 + 연산자 + 숫자 순서로 수식이 생겼을 때 계산해주는 함수
     void PlayerCalculate()
     {
         ObjectData OD = new ObjectData();
@@ -216,6 +220,7 @@ public class Player : MonoBehaviour
                 Debug.LogError("Playe.cs 파일 중 PlayerCalculate 오류 해당 연산자 없음");
                 break;
         }
+        // 수식 초기화
         formulaUi[0].text = "" + formula[formulaCount].num;
         formulaUi[1].text = "";
         formulaUi[2].text = "";

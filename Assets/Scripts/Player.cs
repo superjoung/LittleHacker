@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
             if(hitWall)
             {
                 moveStart = false;
-                transform.position = new Vector2(Mathf.FloorToInt(transform.position.x * 10f) / 10f, Mathf.FloorToInt(transform.position.y * 10f) / 10f);
+                transform.position = new Vector2(Mathf.RoundToInt(transform.position.x * 10f) / 10f, Mathf.RoundToInt(transform.position.y * 10f) / 10f);
             }
             else
             {

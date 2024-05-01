@@ -2,11 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Newtonsoft.Json;
 
 public class MapCreate : MonoBehaviour
 {
-    // CSV 파일 파싱 받을 변수 공간 data_Stage[행][열]
-    List<Dictionary<string, object>> data_Stage = new List<Dictionary<string, object>>();
     [SerializeField]
     List<GameObject> renderObj = new List<GameObject>(); // 값에 따라 render해줄 오브젝트들
 
@@ -31,54 +30,125 @@ public class MapCreate : MonoBehaviour
 
     public void Initialize()
     {
-        data_Stage = CSVReader.Read("SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString());
-        MapRender();
+        TextAsset jsonData = Resources.Load<TextAsset>("Map_data1"); // 시나리오&레벨은 추가 해야함 코드 수정필요
+        if (jsonData == null)
+        {
+            Debug.LogError("Failed to load map data!");
+            return;
+        }
+
+        //MapData mapData = JsonUtility.FromJson<MapData>(jsonData.text); /* JsonUtility는 이차원배열을 다루지 못함 */
+
+        MapData mapData = JsonConvert.DeserializeObject<MapData>(jsonData.text); // 맵 정보로 가져오기
+        if (mapData == null)
+        {
+            Debug.LogError("Failed to parse map data!");
+            return;
+        }
+
+        RenderMap(mapData); // 맵 데이터를 가지고 렌더링
     }
 
-    private void MapRender()
+    private void RenderMap(MapData mapData)
     {
         mapBox = GameObject.Find("Maps");
+
         // 맵 초기화
-        foreach(Transform child in mapBox.transform)
+        foreach (Transform child in mapBox.transform)
         {
             Destroy(child.gameObject);
         }
-        // X, Y 최대 구역 산정
-        mapX = data_Stage[0].Count - 1;
-        mapY = data_Stage.Count - 1;
+
+        // X, Y 최대크기 산정
+        mapX = mapData.Walls[0].Count - 1;
+        mapY = mapData.Walls.Count - 1;
 
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
-        for(int countX = 0; countX < data_Stage.Count; countX++) // 열에 있는 모든 행의 값 부터 다 출력 후 열 1칸 이동
+        // 벽을 먼저 렌더링 (레이어 0)
+        for (int y = 0; y < mapData.Walls.Count; y++)
         {
-            foreach(KeyValuePair<string, object> child in data_Stage[countX]) // 열에 해당하는 행 출력
+            for (int x = 0; x < mapData.Walls[y].Count; x++)
             {
-                // 아무것도 안들어가 있는 경우 패스
-                if(child.Value == null)
-                {
-                    renderPos.x += GameManager.gridSize;
-                    continue;
-                }
-                // 일단 _ 부호 기준으로 문자열 스플릿
-                string[] splitText = child.Value.ToString().Split('_');
-
-                // 숫자 오브젝트가 생성되어야 할때
-                if(int.Parse(splitText[0].ToString()) == 3)
-                {
-                    GameObject tmpObj = Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                    tmpObj.GetComponent<ObjectData>().num = int.Parse(splitText[1].ToString());
-                    tmpObj.transform.GetChild(0).GetComponent<TMP_Text>().text = splitText[1]; 
-                }
-                else
-                {
-                    Instantiate(renderObj[int.Parse(splitText[0].ToString())], renderPos, Quaternion.identity, mapBox.transform);
-                }
-                Instantiate(renderObj[0], renderPos, Quaternion.identity, mapBox.transform);
-
+                GameObject prefab = mapData.Walls[y][x] == 1 ? renderObj[1] : renderObj[0];
+                Instantiate(prefab, new Vector3(renderPos.x, renderPos.y, 0), Quaternion.identity, mapBox.transform);
                 renderPos.x += GameManager.gridSize;
             }
             renderPos.x = -GameManager.gridSize * (mapX / 2);
             renderPos.y -= GameManager.gridSize;
         }
+
+        // 렌더링 위치 초기화
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        // 숫자와 연산자 렌더링 (레이어 -1)
+        for (int y = 0; y < mapData.Numbers.Count; y++)
+        {
+            for (int x = 0; x < mapData.Numbers[y].Count; x++)
+            {
+                if (!string.IsNullOrEmpty(mapData.Numbers[y][x]))
+                {
+                    GameObject numberObj = Instantiate(renderObj[3], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                    numberObj.GetComponent<ObjectData>().num = int.Parse(mapData.Numbers[y][x]);
+                    numberObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Numbers[y][x];
+                }
+                if (!string.IsNullOrEmpty(mapData.Operators[y][x]))
+                {
+                    GameObject operatorObj;
+                    switch (mapData.Operators[y][x]) {
+                        case "+":
+                            operatorObj = Instantiate(renderObj[4], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "+";
+                            break;
+                        case "-":
+                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
+                            break;
+                        case "*":
+                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "*";
+                            break;
+                        case "/":
+                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
+                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
+                            break;
+                    }
+                        
+                    
+                }
+                renderPos.x += GameManager.gridSize;
+            }
+            renderPos.x = -GameManager.gridSize * (mapX / 2);
+            renderPos.y -= GameManager.gridSize;
+        }
+
+        // 렌더링 위치 초기화
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        // 플레이어 렌더링 (레이어 -2)
+        Vector2 playerPosition = mapData.PlayerPosition;
+        Instantiate(
+            renderObj[2],
+            new Vector3(renderPos.x + playerPosition.x * GameManager.gridSize, renderPos.y - playerPosition.y * GameManager.gridSize, -2),
+            Quaternion.identity, mapBox.transform
+        );
+
+        // 렌더링 위치 초기화
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        // 문 렌더링 (레이어 -2)
+        Vector2 DoorPosition = mapData.DoorPosition;
+        GameObject doorObj = Instantiate(
+            renderObj[8],
+            new Vector3(renderPos.x + DoorPosition.x * GameManager.gridSize, renderPos.y - DoorPosition.y * GameManager.gridSize, -2),
+            Quaternion.identity, mapBox.transform
+        );
+        doorObj.GetComponent<ObjectData>().num = mapData.DoorValue;
+        doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
+
     }
 }

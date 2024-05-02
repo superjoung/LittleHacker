@@ -8,6 +8,7 @@ TagManager:
   - Operator
   - Wall
   - Door
+  - Box
   layers:
   - Default
   - TransparentFX

@@ -42,7 +42,6 @@ public class Player : MonoBehaviour
         {
             PlayerMoveDIr();
         }
-        PlayerMove();
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -50,12 +49,17 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        PlayerMove();
+    }
     public void Initialized()
     {
         formula.Clear();
         formulaUi[0].text = "";
         formulaUi[1].text = "";
         formulaUi[2].text = "";
+        formulaTotalNum = 0;
     }
 
     void TouchSetup()
@@ -115,14 +119,13 @@ public class Player : MonoBehaviour
         int layerMask = (1 << LayerMask.NameToLayer("Wall")) + (1 << LayerMask.NameToLayer("Item"));
         if (moveStart)
         {
-            RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.5f, layerMask);
-            RaycastHit2D hitDoor = Physics2D.Raycast(transform.position, moveDir, 0.5f, LayerMask.GetMask("Door"));
-            PlayerGetItem();
+            RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.6f, layerMask);
+            RaycastHit2D hitDoor = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Door"));
             transform.Translate(moveDir * playerMoveSpeed * Time.deltaTime);
             if (hitWall)
             {
                 // 벽 처리
-                if(hitWall.transform.tag == "Wall" || hitWall.transform.tag == "Oper" && formulaCount / 2 == 0 || hitWall.transform.tag == "Number" && formulaCount / 2 == 1)
+                if(hitWall.transform.tag == "Wall" || hitWall.transform.tag == "Operator" && formulaCount % 3 != 1 || hitWall.transform.tag == "Number" && formulaCount % 3 == 1)
                 {
                     moveStart = false;
                     transform.position = new Vector2(hitWall.transform.position.x - moveDir.x, hitWall.transform.position.y - moveDir.y);
@@ -137,6 +140,8 @@ public class Player : MonoBehaviour
                     transform.position = new Vector2(hitDoor.transform.position.x - moveDir.x, hitDoor.transform.position.y - moveDir.y);
                 }
             }
+
+            PlayerGetItem();
         }
     }
 
@@ -149,16 +154,17 @@ public class Player : MonoBehaviour
         {
             ObjectData OD = hitItem.transform.GetComponent<ObjectData>();
             // 먹은 오브젝트가 숫자일 경우
-            if (hitItem.transform.tag == "Number" && formulaCount / 2 == 0)
+            if (hitItem.transform.tag == "Number" && formulaCount % 3 == 0 || formulaCount % 3 == 2)
             {
                 formula.Add(formulaCount, OD);
                 formulaUi[formulaCount % 3].text = "" + OD.num;
+                if (formulaCount % 3 == 0) formulaTotalNum = formula[formulaCount].num;
                 formulaCount++;
                 Destroy(hitItem.transform.gameObject);
             }
 
             // 먹은 오브젝트가 연산자일 경우
-            else if (hitItem.transform.tag == "Operator" && formulaCount / 2 == 1)
+            else if (hitItem.transform.tag == "Operator" && formulaCount % 3 == 1)
             {
                 formula.Add(formulaCount, OD);
                 formulaUi[1].text = OD.oper;
@@ -189,35 +195,25 @@ public class Player : MonoBehaviour
         {
             return;
         }
-
-        // totalNum안에 값을 넣어서 문으로 통과 가능한지 확인
-        if((formulaCount-1) % 3 == 0)
-        {
-            formulaTotalNum = formula[formulaCount - 1].num;
-        }
     }
 
     // 수식 계산 숫자 + 연산자 + 숫자 순서로 수식이 생겼을 때 계산해주는 함수
     void PlayerCalculate()
     {
-        ObjectData OD = new ObjectData();
+        formula.Add(formulaCount, new ObjectData());
         switch (formula[formulaCount - 2].oper)
         {
             case "-":
-                OD.num = formula[formulaCount - 3].num - formula[formulaCount - 1].num;
-                formula.Add(formulaCount, OD);
+                formula[formulaCount].num = formula[formulaCount - 3].num - formula[formulaCount - 1].num;
                 break;
             case "+":
-                OD.num = formula[formulaCount - 3].num + formula[formulaCount - 1].num;
-                formula.Add(formulaCount, OD);
+                formula[formulaCount].num = formula[formulaCount - 3].num + formula[formulaCount - 1].num;
                 break;
             case "/":
-                OD.num = formula[formulaCount - 3].num / formula[formulaCount - 1].num;
-                formula.Add(formulaCount, OD);
+                formula[formulaCount].num = formula[formulaCount - 3].num / formula[formulaCount - 1].num;
                 break;
             case "*":
-                OD.num = formula[formulaCount - 3].num * formula[formulaCount - 1].num;
-                formula.Add(formulaCount, OD);
+                formula[formulaCount].num = formula[formulaCount - 3].num * formula[formulaCount - 1].num;
                 break;
             default:
                 Debug.LogError("Playe.cs 파일 중 PlayerCalculate 오류 해당 연산자 없음");
@@ -227,6 +223,8 @@ public class Player : MonoBehaviour
         formulaUi[0].text = "" + formula[formulaCount].num;
         formulaUi[1].text = "";
         formulaUi[2].text = "";
+
+        formulaTotalNum = formula[formulaCount].num;
         formulaCount++;
     }
 
@@ -235,8 +233,8 @@ public class Player : MonoBehaviour
     {
         for(int count = 0; count < formulaCount; count++)
         {
-            if(count / 2 == 0) Debug.Log("iter count " + count + " : " + formula[count].num);
-            else if (count / 2 == 0) Debug.Log("iter count " + count + " : " + formula[count].oper);
+            if(count % 2 == 0) Debug.Log("iter count " + count + " : " + formula[count].num);
+            else if (count % 2 == 1) Debug.Log("iter count " + count + " : " + formula[count].oper);
         }
     }
 }

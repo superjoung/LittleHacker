@@ -5,7 +5,7 @@ using System.IO;
 using Newtonsoft.Json;
 
 public class MakeJsonMapData : MonoBehaviour
-{
+{   
     private string csvDirectoryPath;     // CSV 파일들이 있는 폴더 경로
     private string jsonDirectoryPath;    // JSON 파일들을 저장할 폴더 경로
 
@@ -62,6 +62,7 @@ public class MakeJsonMapData : MonoBehaviour
         mapData.Walls = new List<List<int>>();
         mapData.Numbers = new List<List<string>>();
         mapData.Operators = new List<List<string>>();
+        mapData.Boxes = new List<List<int>>();
         mapData.PlayerPosition = new Vector2();
         mapData.DoorPosition = new Vector2();
         mapData.DoorValue = new int();
@@ -72,6 +73,7 @@ public class MakeJsonMapData : MonoBehaviour
             List<int> wallRow = new List<int>();
             List<string> numberRow = new List<string>();
             List<string> operatorRow = new List<string>();
+            List<int> boxRow = new List<int>();
 
             int colIndex = 0;
             foreach (var col in row)
@@ -82,30 +84,35 @@ public class MakeJsonMapData : MonoBehaviour
                     wallRow.Add(1);
                     numberRow.Add("");
                     operatorRow.Add("");
+                    boxRow.Add(0);
                 }
                 else if (value == "0")  // 배경
                 {
                     wallRow.Add(0);
                     numberRow.Add("");
                     operatorRow.Add("");
+                    boxRow.Add(0);
                 }
                 else if (value.StartsWith("3_"))  // 숫자
                 {
                     wallRow.Add(0);
                     numberRow.Add(value.Split('_')[1]);
                     operatorRow.Add("");
+                    boxRow.Add(0);
                 }
                 else if (value.StartsWith("4_") || value.StartsWith("5_") || value.StartsWith("6_") || value.StartsWith("7_"))  // 연산자
                 {
                     wallRow.Add(0);
                     numberRow.Add("");
                     operatorRow.Add(value.Split('_')[1]);
+                    boxRow.Add(0);
                 }
                 else if (value == "2")  // 플레이어 위치
                 {
                     wallRow.Add(0);
                     numberRow.Add("");
                     operatorRow.Add("");
+                    boxRow.Add(0);
                     mapData.PlayerPosition = new Vector2(colIndex, rowIndex);
                 }
                 else if(value.StartsWith("8_"))   // 문 위치
@@ -113,8 +120,16 @@ public class MakeJsonMapData : MonoBehaviour
                     wallRow.Add(0);
                     numberRow.Add("");
                     operatorRow.Add("");
+                    boxRow.Add(0);
                     mapData.DoorPosition = new Vector2(colIndex, rowIndex);
                     mapData.DoorValue = int.Parse(value.Split('_')[1]);
+                }
+                else if(value.StartsWith("9_"))     // 상자의 위치
+                {
+                    wallRow.Add(0);
+                    numberRow.Add("");
+                    operatorRow.Add("");
+                    boxRow.Add(1);
                 }
                 colIndex++;
             }
@@ -122,6 +137,7 @@ public class MakeJsonMapData : MonoBehaviour
             mapData.Walls.Add(wallRow);
             mapData.Numbers.Add(numberRow);
             mapData.Operators.Add(operatorRow);
+            mapData.Boxes.Add(boxRow);
 
             rowIndex++;
         }
@@ -151,6 +167,7 @@ public class MapData
     public List<List<int>> Walls { get; set; }
     public List<List<string>> Numbers { get; set; }
     public List<List<string>> Operators { get; set; }
+    public List<List<int>> Boxes { get; set; }
     public Vector2 PlayerPosition;
     public Vector2 DoorPosition;
     public int DoorValue;

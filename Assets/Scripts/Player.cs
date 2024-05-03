@@ -87,26 +87,30 @@ public class Player : MonoBehaviour
 
     void PlayerMoveDIr()
     {
-        moveDir = new Vector2(0, 0);
+        bool isKeyPressed = false;
 
         if (Input.GetKeyDown(KeyCode.W))
         {
             moveDir = new Vector2(0, 1);
+            isKeyPressed = true;
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             moveDir = new Vector2(-1, 0);
+            isKeyPressed = true;
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
             moveDir = new Vector2(0, -1);
+            isKeyPressed = true;
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
             moveDir = new Vector2(1, 0);
+            isKeyPressed = true;
         }
         
-        if(moveDir.x != 0 || moveDir.y != 0)
+        if(isKeyPressed)
         {
             moveStart = true;
             return;

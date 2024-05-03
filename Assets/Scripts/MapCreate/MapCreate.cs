@@ -35,6 +35,21 @@ public class MapCreate : MonoBehaviour
             Initialize(stageInfo);
             player.Initialized();
         }
+        if (Input.GetKeyDown(KeyCode.N) && GameManager.currentStage > 1)
+        {
+            GameManager.currentStage--;
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+
+            Initialize(stageInfo);
+            player.Initialized();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+
+            Initialize(stageInfo);
+            player.Initialized();
+        }
     }
 
     public void Initialize(string stageJsonData)

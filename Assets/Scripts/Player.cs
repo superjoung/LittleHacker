@@ -119,6 +119,7 @@ public class Player : MonoBehaviour
         int layerMask = (1 << LayerMask.NameToLayer("Wall")) + (1 << LayerMask.NameToLayer("Item"));
         if (moveStart)
         {
+            PlayerGetItem();
             RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.6f, layerMask);
             RaycastHit2D hitDoor = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Door"));
             transform.Translate(moveDir * playerMoveSpeed * Time.deltaTime);
@@ -134,14 +135,12 @@ public class Player : MonoBehaviour
 
             if (hitDoor)
             {
-                if (hitDoor.transform.GetComponent<ObjectData>().num != formulaTotalNum)
+                if (hitDoor.transform.GetComponent<ObjectData>().num != formulaTotalNum || formulaCount % 3 != 1)
                 {
                     moveStart = false;
                     transform.position = new Vector2(hitDoor.transform.position.x - moveDir.x, hitDoor.transform.position.y - moveDir.y);
                 }
             }
-
-            PlayerGetItem();
         }
     }
 
@@ -172,7 +171,7 @@ public class Player : MonoBehaviour
                 Destroy(hitItem.transform.gameObject);
             }
 
-            else if(hitItem.transform.tag == "Door")
+            else if(hitItem.transform.tag == "Door" && formulaCount % 3 == 1)
             {
                 if(hitItem.transform.GetComponent<ObjectData>().num == formulaTotalNum)
                 {
@@ -200,7 +199,7 @@ public class Player : MonoBehaviour
     // 수식 계산 숫자 + 연산자 + 숫자 순서로 수식이 생겼을 때 계산해주는 함수
     void PlayerCalculate()
     {
-        formula.Add(formulaCount, new ObjectData());
+        formula.Add(formulaCount, gameObject.AddComponent<ObjectData>());
         switch (formula[formulaCount - 2].oper)
         {
             case "-":

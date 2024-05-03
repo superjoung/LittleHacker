@@ -13,9 +13,10 @@ public class MapCreate : MonoBehaviour
     private float mapY;
 
     public Player player;
-    private Vector2 renderPos; // � ��ǥ�� ���� render�ؾ��ϴ°�
-    private GameObject mapBox; // ��Ƶ� �ڽ�
+    private Vector2 renderPos; // 렌더링 할 좌표로 이용
+    private GameObject mapBox; // map 오브젝트 내에 요소를 담기위한 박스
     private string stageInfo;
+
 
 
     private void Start()
@@ -35,11 +36,27 @@ public class MapCreate : MonoBehaviour
             Initialize(stageInfo);
             player.Initialized();
         }
+        if (Input.GetKeyDown(KeyCode.N) && GameManager.currentStage > 1)
+        {
+            GameManager.currentStage--;
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+
+            Initialize(stageInfo);
+            player.Initialized();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+
+            Initialize(stageInfo);
+            player.Initialized();
+        }
     }
 
+    // Json파일 가져오기
     public void Initialize(string stageJsonData)
     {
-        TextAsset jsonData = Resources.Load<TextAsset>("MapDatasJSON/" + stageJsonData); // �ó�����&������ �߰� �ؾ��� �ڵ� �����ʿ�
+        TextAsset jsonData = Resources.Load<TextAsset>("MapDatasJSON/" + stageJsonData); // Resources -> MapDatasJson내에 이름으로 접근
 
         if (jsonData == null)
         {
@@ -47,7 +64,7 @@ public class MapCreate : MonoBehaviour
             return;
         }
 
-        MapData mapData = JsonConvert.DeserializeObject<MapData>(jsonData.text);
+        MapData mapData = JsonConvert.DeserializeObject<MapData>(jsonData.text); // mapData 불러오기
         if (mapData == null)
         {
             Debug.LogError("Failed to parse map data!");
@@ -59,17 +76,22 @@ public class MapCreate : MonoBehaviour
 
     private void RenderMap(MapData mapData)
     {
-        mapBox = GameObject.Find("Maps");
+        mapBox = GameObject.Find("Maps"); // 오브젝트를 담을 Maps선언
 
+        // Maps 초기화 (모든 오브젝트 삭제)
         foreach (Transform child in mapBox.transform)
         {
             Destroy(child.gameObject);
         }
 
+        // 맵의 x, y크기 가져오기
         mapX = mapData.Walls[0].Count - 1;
         mapY = mapData.Walls.Count - 1;
 
-        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+        // 맵크기에 맞게 카메라 거리 설정
+        AdjustCameraSize(mapX, mapY);
+
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2)); // 
 
         for (int y = 0; y < mapData.Walls.Count; y++)
         {
@@ -110,18 +132,35 @@ public class MapCreate : MonoBehaviour
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
                             break;
                         case "x":
-                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj = Instantiate(renderObj[6], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "x";
                             break;
                         case "/":
-                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj = Instantiate(renderObj[7], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
                             break;
                     }
                         
                     
+                }
+                renderPos.x += GameManager.gridSize;
+            }
+            renderPos.x = -GameManager.gridSize * (mapX / 2);
+            renderPos.y -= GameManager.gridSize;
+        }
+
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        for (int y = 0; y < mapData.Boxes.Count; y++)
+        {
+            for (int x = 0; x < mapData.Boxes[y].Count; x++)
+            {
+                if(mapData.Boxes[y][x] == 1)
+                {
+                    GameObject prefab = renderObj[9];
+                    Instantiate(prefab, new Vector3(renderPos.x, renderPos.y, -2), Quaternion.identity, mapBox.transform);
                 }
                 renderPos.x += GameManager.gridSize;
             }
@@ -149,6 +188,15 @@ public class MapCreate : MonoBehaviour
         doorObj.GetComponent<ObjectData>().num = mapData.DoorValue;
         doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
 
+    }
+
+    // 맵의 해상도를 맞추는 임시함수
+    private void AdjustCameraSize(float mapWidth, float mapHeight)
+    {
+        Camera mainCamera = Camera.main;
+
+        // 카메라의 Size를 맵의 최대 길이에 맞게 설정
+        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight);
     }
 
     void MapSuvCreate(string[] splitText)

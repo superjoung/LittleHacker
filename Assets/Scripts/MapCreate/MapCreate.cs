@@ -125,18 +125,35 @@ public class MapCreate : MonoBehaviour
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
                             break;
                         case "x":
-                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj = Instantiate(renderObj[6], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "x";
                             break;
                         case "/":
-                            operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                            operatorObj = Instantiate(renderObj[7], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
                             operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
                             break;
                     }
                         
                     
+                }
+                renderPos.x += GameManager.gridSize;
+            }
+            renderPos.x = -GameManager.gridSize * (mapX / 2);
+            renderPos.y -= GameManager.gridSize;
+        }
+
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
+        for (int y = 0; y < mapData.Boxes.Count; y++)
+        {
+            for (int x = 0; x < mapData.Boxes[y].Count; x++)
+            {
+                if(mapData.Boxes[y][x] == 1)
+                {
+                    GameObject prefab = renderObj[9];
+                    Instantiate(prefab, new Vector3(renderPos.x, renderPos.y, -2), Quaternion.identity, mapBox.transform);
                 }
                 renderPos.x += GameManager.gridSize;
             }

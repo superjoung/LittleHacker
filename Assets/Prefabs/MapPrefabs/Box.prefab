@@ -101,6 +101,8 @@ MonoBehaviour:
   num: 0
   doorNum: 0
   oper: 
+  boxTrigger: 0
+  boxMoveDir: {x: 0, y: 0}
 --- !u!61 &4753529150415653180
 BoxCollider2D:
   m_ObjectHideFlags: 0

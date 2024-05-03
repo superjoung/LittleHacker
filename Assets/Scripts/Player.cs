@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
 
     private Vector2 touchPosition = new Vector2(0, 0);
     private Vector2 startPos = new Vector2(0, 0);
-    private Vector2 moveDir = new Vector2(0, 0);
+    public Vector2 moveDir = new Vector2(0, 0);
 
     public float playerMoveSpeed;
     private bool moveStart = false;
@@ -122,6 +122,8 @@ public class Player : MonoBehaviour
             PlayerGetItem();
             RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.6f, layerMask);
             RaycastHit2D hitDoor = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Door"));
+            RaycastHit2D hitTrigger = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Trigger"));
+
             transform.Translate(moveDir * playerMoveSpeed * Time.deltaTime);
             if (hitWall)
             {
@@ -139,6 +141,15 @@ public class Player : MonoBehaviour
                 {
                     moveStart = false;
                     transform.position = new Vector2(hitDoor.transform.position.x - moveDir.x, hitDoor.transform.position.y - moveDir.y);
+                }
+            }
+
+            if (hitTrigger)
+            {
+                if (hitTrigger.transform.tag == "Box")
+                {
+                    hitTrigger.transform.GetComponent<ObjectData>().boxMoveDir = moveDir;
+                    hitTrigger.transform.GetComponent<ObjectData>().boxTrigger = true;
                 }
             }
         }

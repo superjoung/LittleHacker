@@ -87,7 +87,32 @@ public class Player : MonoBehaviour
 
     void PlayerMoveDIr()
     {
-        if(playerTouch == ETouchState.Begin)
+        moveDir = new Vector2(0, 0);
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            moveDir = new Vector2(0, 1);
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            moveDir = new Vector2(-1, 0);
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            moveDir = new Vector2(0, -1);
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            moveDir = new Vector2(1, 0);
+        }
+        
+        if(moveDir.x != 0 || moveDir.y != 0)
+        {
+            moveStart = true;
+            return;
+        }
+
+        if (playerTouch == ETouchState.Begin)
         {
             startPos = touchPosition;
         }

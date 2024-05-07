@@ -9,6 +9,7 @@ public class ObjectData : MonoBehaviour
     public string oper;
 
     public bool boxTrigger = false;
+    public bool boxStop = false;
     public Vector2 boxMoveDir = new Vector2(0, 0);
     private float boxMoveSpeed = 5;
 
@@ -26,6 +27,8 @@ public class ObjectData : MonoBehaviour
 
         if (hitWall)
         {
+            // 박스가 벽과 부딪쳤을 경우
+            boxStop = true;
             boxTrigger = false;
             transform.position = new Vector2(hitWall.transform.position.x - boxMoveDir.x, hitWall.transform.position.y - boxMoveDir.y);
         }

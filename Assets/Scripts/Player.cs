@@ -53,6 +53,7 @@ public class Player : MonoBehaviour
     {
         PlayerMove();
     }
+
     public void Initialized()
     {
         formula.Clear();
@@ -87,45 +88,45 @@ public class Player : MonoBehaviour
 
     void PlayerMoveDIr()
     {
-        moveDir = new Vector2(0, 0);
+        //moveDir = new Vector2(0, 0);
 
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            moveDir = new Vector2(0, 1);
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            moveDir = new Vector2(-1, 0);
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            moveDir = new Vector2(0, -1);
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            moveDir = new Vector2(1, 0);
-        }
-        
-        if(moveDir.x != 0 || moveDir.y != 0)
-        {
-            moveStart = true;
-            return;
-        }
+        //if (Input.GetKeyDown(KeyCode.W))
+        //{
+        //    moveDir = new Vector2(0, 1);
+        //}
+        //if (Input.GetKeyDown(KeyCode.A))
+        //{
+        //    moveDir = new Vector2(-1, 0);
+        //}
+        //if (Input.GetKeyDown(KeyCode.S))
+        //{
+        //    moveDir = new Vector2(0, -1);
+        //}
+        //if (Input.GetKeyDown(KeyCode.D))
+        //{
+        //    moveDir = new Vector2(1, 0);
+        //}
+
+        //if (moveDir.x != 0 || moveDir.y != 0)
+        //{
+        //    moveStart = true;
+        //    return;
+        //}
 
         if (playerTouch == ETouchState.Begin)
         {
             startPos = touchPosition;
         }
 
-        else if(playerTouch == ETouchState.Move)
+        else if (playerTouch == ETouchState.Move)
         {
             moveDir = touchPosition - startPos;
             moveDir = new Vector2(Mathf.Floor(moveDir.x), Mathf.Floor(moveDir.y));
         }
 
-        else if(playerTouch == ETouchState.End)
+        else if (playerTouch == ETouchState.End)
         {
-            if (new Vector2(Mathf.Floor(moveDir.x), Mathf.Floor(moveDir.y)) == new Vector2(0, 0)) return; 
+            if (new Vector2(Mathf.Floor(moveDir.x), Mathf.Floor(moveDir.y)) == new Vector2(0, 0)) return;
 
             else
             {
@@ -160,6 +161,7 @@ public class Player : MonoBehaviour
                 }
             }
 
+            // 도착지점에 도달했을 때 조건이 충족되지 않았을 경우
             if (hitDoor)
             {
                 if (hitDoor.transform.GetComponent<ObjectData>().num != formulaTotalNum || formulaCount % 3 != 1)
@@ -169,18 +171,29 @@ public class Player : MonoBehaviour
                 }
             }
 
+            // box와 부딪쳤을 때 생기는 스크립트
             if (hitTrigger)
             {
-                if (hitTrigger.transform.tag == "Box")
+                if (hitTrigger.transform.tag == "Box" && moveStart == true)
                 {
-                    hitTrigger.transform.GetComponent<ObjectData>().boxMoveDir = moveDir;
-                    hitTrigger.transform.GetComponent<ObjectData>().boxTrigger = true;
+                    ObjectData box = hitTrigger.transform.GetComponent<ObjectData>();
+                    if (box.boxStop == true)
+                    {
+                        moveStart = false;
+                        transform.position = new Vector2(hitTrigger.transform.position.x - moveDir.x, hitTrigger.transform.position.y - moveDir.y);
+                        box.boxStop = false;
+                    }
+                    else
+                    {
+                        box.boxMoveDir = moveDir;
+                        box.boxTrigger = true;
+                    }
                 }
             }
         }
     }
 
-    // player가 수식들을얻 얻었을 경우 또는 문에 닿았을 경우를 나눠서 계산
+    // player가 수식들을 얻었을 경우 또는 문에 닿았을 경우를 나눠서 계산 수식들만 넣어두는 식으로
     void PlayerGetItem()
     {
         int layerMask = (1 << LayerMask.NameToLayer("Item")) + (1 << LayerMask.NameToLayer("Door"));

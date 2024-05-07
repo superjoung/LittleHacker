@@ -6,19 +6,49 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using System.Xml;
+using UnityEditor.SceneManagement;
+
+public class revertObject
+{
+    public enum ERevertType {formula, box};
+    public List<GameObject> objects = new List<GameObject>();
+    public List<Vector2> transforms = new List<Vector2>();
+    public List<ERevertType> revertTypes = new List<ERevertType>();
+    public Vector2 playerPos;
+
+    public revertObject(List<GameObject> objects, List<Vector2> transforms, List<ERevertType> revertTypes, Vector2 playerPos)
+    {
+        this.objects = objects;
+        this.transforms = transforms;
+        this.revertTypes = revertTypes;
+        this.playerPos = playerPos;
+    }
+
+    public revertObject()
+    {
+        return;
+    }
+}
+
 
 public class Player : MonoBehaviour
 {
+    // 화면 터치 함수
     public enum ETouchState { None, Begin, Move, End };
     public ETouchState playerTouch = ETouchState.None;
-
     private Vector2 touchPosition = new Vector2(0, 0);
     private Vector2 startPos = new Vector2(0, 0);
     public Vector2 moveDir = new Vector2(0, 0);
 
+    // 일단 인게임 Player 변수
     public float playerMoveSpeed;
     private bool moveStart = false;
+    // key = 진행한 턴, value 클래스
+    public Dictionary<int, revertObject> backUpRevert = new Dictionary<int, revertObject>();
+    public revertObject revertObjects = new revertObject();
 
+    // 수식 변수
     public Dictionary<int, ObjectData> formula = new Dictionary<int, ObjectData>();
     public TMP_Text[] formulaUi = new TMP_Text[3];
     public int formulaTotalNum = 0;
@@ -61,6 +91,7 @@ public class Player : MonoBehaviour
         formulaUi[1].text = "";
         formulaUi[2].text = "";
         formulaTotalNum = 0;
+        backUpRevert.Clear();
 
         GameObject.Find("BackStartButton").GetComponent<Button>().onClick.AddListener(() => BackStartButtonClick());
         GameObject.Find("ReStartButton").GetComponent<Button>().onClick.AddListener(() => ReStartButtonClick());
@@ -138,6 +169,7 @@ public class Player : MonoBehaviour
 
                 moveDir.Normalize();
                 moveStart = true;
+                revertObjects.playerPos = transform.position;
             }
         }
     }
@@ -180,6 +212,7 @@ public class Player : MonoBehaviour
                 if (hitTrigger.transform.tag == "Box" && moveStart == true)
                 {
                     ObjectData box = hitTrigger.transform.GetComponent<ObjectData>();
+
                     if (box.boxStop == true)
                     {
                         moveStart = false;
@@ -188,10 +221,24 @@ public class Player : MonoBehaviour
                     }
                     else
                     {
-                        box.boxMoveDir = moveDir;
-                        box.boxTrigger = true;
+                        if (box.boxTrigger == false)
+                        {
+                            InputRevertObject(hitTrigger.transform.gameObject);
+                            box.boxMoveDir = moveDir;
+                            box.boxTrigger = true;
+                        }
                     }
                 }
+            }
+
+            // 가장 마지막에 위치해야하는 함수 추후 수정할 예정
+            if(moveStart == false)
+            {
+                backUpRevert.Add(GameManager.playerTurn, new revertObject(revertObjects.objects.ToList(), revertObjects.transforms.ToList(), revertObjects.revertTypes.ToList(), revertObjects.playerPos));
+                GameManager.playerTurn++;
+                revertObjects.objects.Clear();
+                revertObjects.transforms.Clear();
+                revertObjects.revertTypes.Clear();
             }
         }
     }
@@ -207,20 +254,22 @@ public class Player : MonoBehaviour
             // 먹은 오브젝트가 숫자일 경우
             if (hitItem.transform.tag == "Number" && formulaCount % 3 == 0 || formulaCount % 3 == 2)
             {
+                InputRevertObject(hitItem.transform.gameObject);
                 formula.Add(formulaCount, OD);
                 formulaUi[formulaCount % 3].text = "" + OD.num;
                 if (formulaCount % 3 == 0) formulaTotalNum = formula[formulaCount].num;
                 formulaCount++;
-                Destroy(hitItem.transform.gameObject);
+                hitItem.transform.gameObject.SetActive(false);
             }
 
             // 먹은 오브젝트가 연산자일 경우
             else if (hitItem.transform.tag == "Operator" && formulaCount % 3 == 1)
             {
+                InputRevertObject(hitItem.transform.gameObject);
                 formula.Add(formulaCount, OD);
                 formulaUi[1].text = OD.oper;
                 formulaCount++;
-                Destroy(hitItem.transform.gameObject);
+                hitItem.transform.gameObject.SetActive(false);
             }
 
             else if(hitItem.transform.tag == "Door" && formulaCount % 3 == 1)
@@ -297,6 +346,52 @@ public class Player : MonoBehaviour
 
     void BackStartButtonClick()
     {
+        if(backUpRevert.Count != 0)
+        {
+            revertObject revertObj = backUpRevert[GameManager.playerTurn - 1];
+            transform.position = revertObj.playerPos;
 
+            for (int count = 0; count < revertObj.revertTypes.Count; count++)
+            {
+                Debug.Log("iter : " + count);
+                switch (revertObj.revertTypes[count])
+                {
+                    case revertObject.ERevertType.formula:
+                        revertObj.objects[count].SetActive(true);
+                        formulaCount--;
+                        formula.Remove(formulaCount);
+                        formulaUi[formulaCount % 3].text = "";
+                        Debug.Log("formula BackUp");
+                        break;
+                    case revertObject.ERevertType.box:
+                        revertObj.objects[count].transform.position = revertObj.transforms[count];
+                        Debug.Log("box BackUp");
+                        break;
+                }
+            }
+
+            
+            backUpRevert.Clear();
+        }
+    }
+
+    // revertObject 데이타 인풋 함수
+    void InputRevertObject(GameObject hit)
+    {
+        revertObjects.objects.Add(hit);
+        revertObjects.transforms.Add(hit.transform.position);
+
+        switch (hit.transform.tag)
+        {
+            case "Number":
+                revertObjects.revertTypes.Add(revertObject.ERevertType.formula);
+                break;
+            case "Operator":
+                revertObjects.revertTypes.Add(revertObject.ERevertType.formula);
+                break;
+            case "Box":
+                revertObjects.revertTypes.Add(revertObject.ERevertType.box);
+                break;
+        }
     }
 }

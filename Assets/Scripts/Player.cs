@@ -61,6 +61,9 @@ public class Player : MonoBehaviour
         formulaUi[1].text = "";
         formulaUi[2].text = "";
         formulaTotalNum = 0;
+
+        GameObject.Find("BackStartButton").GetComponent<Button>().onClick.AddListener(() => BackStartButtonClick());
+        GameObject.Find("ReStartButton").GetComponent<Button>().onClick.AddListener(() => ReStartButtonClick());
     }
 
     void TouchSetup()
@@ -284,5 +287,16 @@ public class Player : MonoBehaviour
             if(count % 2 == 0) Debug.Log("iter count " + count + " : " + formula[count].num);
             else if (count % 2 == 1) Debug.Log("iter count " + count + " : " + formula[count].oper);
         }
+    }
+
+    void ReStartButtonClick()
+    {
+        GameObject.Find("GameManager").GetComponent<MapCreate>().Initialize("SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString());
+        Initialized();
+    }
+
+    void BackStartButtonClick()
+    {
+
     }
 }

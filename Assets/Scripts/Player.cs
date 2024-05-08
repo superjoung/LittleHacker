@@ -363,6 +363,7 @@ public class Player : MonoBehaviour
                         formulaUi[formulaCount % 3].text = "";
                         Debug.Log("formula BackUp");
                         break;
+
                     case revertObject.ERevertType.box:
                         revertObj.objects[count].transform.position = revertObj.transforms[count];
                         Debug.Log("box BackUp");

@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
     // 일단 인게임 Player 변수
     public float playerMoveSpeed;
     private bool moveStart = false;
+
     // key = 진행한 턴, value 클래스
     public Dictionary<int, revertObject> backUpRevert = new Dictionary<int, revertObject>();
     public revertObject revertObjects = new revertObject();
@@ -60,8 +61,11 @@ public class Player : MonoBehaviour
     private int formulaCount = 0;
     private bool formulaCalculate = false;
 
+    public GameManager gameManager;
+
     public void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         int count = 0;
         foreach(Transform formulaInfoUi in GameObject.Find("FormulaBackGround").transform)
         {
@@ -295,7 +299,7 @@ public class Player : MonoBehaviour
             {
                 if(hitItem.transform.GetComponent<ObjectData>().num == formulaTotalNum)
                 {
-                    Debug.Log("Clear");
+                    gameManager.StageClear();
                     Destroy(hitItem.transform.gameObject);
                 }
                 else

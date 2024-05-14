@@ -17,12 +17,14 @@ public class MapCreate : MonoBehaviour
     private GameObject mapBox; // map 오브젝트 내에 요소를 담기위한 박스
     private string stageInfo;
 
-
-
-    private void Start()
+    private void Awake()
     {
         stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
         Initialize(stageInfo);
+    }
+
+    private void Start()
+    {
         player = GameObject.FindWithTag("Player").GetComponent<Player>();
     }
 

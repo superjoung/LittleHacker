@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
 
     public GameObject Canvas;
 
+    public Player player;
+    public MapCreate mapCreate;
+
     private void Awake()
     {
         SpawnInitialized();
@@ -19,8 +22,24 @@ public class GameManager : MonoBehaviour
         currentStage = 1;
     }
 
+    private void Start()
+    {
+        player = GameObject.FindWithTag("Player").GetComponent<Player>();
+        mapCreate = transform.GetComponent<MapCreate>();
+    }
+
     void SpawnInitialized()
     {
         Instantiate(Canvas);
+    }
+
+    // 각각 스크립트 Initialized 함수를 모아서 실행시킬예정
+    public void StageClear()
+    {
+        currentStage++;
+
+        mapCreate.Initialize("SN_" + currentScenario.ToString() + "_ST_" + currentStage.ToString());
+        player.Initialized();
+        player = GameObject.FindWithTag("Player").GetComponent<Player>();
     }
 }

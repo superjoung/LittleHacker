@@ -10,7 +10,9 @@ public class GameManager : MonoBehaviour
     static public int playerTurn = 0;
     static public float gridSize = 1;
 
-    public GameObject Canvas;
+    public GameObject Canvas; // 플레이어 화면보다 아래에 랜더링 되는 UI
+    public GameObject UpperCanvas; // 플레이어 화면보다 위에 랜더링 되는 UI
+    public GameObject UiCamera;
 
     public Player player;
     public MapCreate mapCreate;
@@ -30,7 +32,9 @@ public class GameManager : MonoBehaviour
 
     void SpawnInitialized()
     {
-        Instantiate(Canvas);
+        Canvas canvas = Instantiate(Canvas).GetComponent<Canvas>();
+        Instantiate(UpperCanvas).GetComponent<Canvas>().worldCamera = Camera.main;
+        canvas.worldCamera = Instantiate(UiCamera).GetComponent<Camera>();
     }
 
     // 각각 스크립트 Initialized 함수를 모아서 실행시킬예정

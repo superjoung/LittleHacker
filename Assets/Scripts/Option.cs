@@ -16,15 +16,17 @@ public class Option : MonoBehaviour
 
     private void Initialized()
     {
-        if (SceneManager.sceneCount == 1) // ∏ﬁ¿Œ ∞‘¿” æ¿
+        if (SceneManager.sceneCount == 2) // ∏ﬁ¿Œ ∞‘¿” æ¿
         {
             GameObject.Find("OptionButton").GetComponent<Button>().onClick.AddListener(() => OptionButtonClick());
             optionSettingPanel = GameObject.Find("OptionSettingBox").transform.GetChild(0).gameObject;
         }
 
-        else if(SceneManager.sceneCount == 0)
+        else if(SceneManager.sceneCount == 1)
         {
-
+            GameObject.Find("OptionButton").GetComponent<Button>().onClick.AddListener(() => OptionButtonClick());
+            optionSettingPanel = GameObject.Find("Option").transform.GetChild(0).gameObject;
+            GameObject.Find("GameStartButton").GetComponent<Button>().onClick.AddListener(() => GameStartButtonClick());
         }
     }
 
@@ -39,5 +41,10 @@ public class Option : MonoBehaviour
         {
             optionSettingPanel.SetActive(false);
         }
+    }
+    
+    void GameStartButtonClick()
+    {
+        SceneManager.LoadScene(1);
     }
 }

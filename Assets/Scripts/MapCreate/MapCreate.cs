@@ -19,8 +19,18 @@ public class MapCreate : MonoBehaviour
 
     private void Awake()
     {
-        stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
-        Initialize(stageInfo);
+        if (PlayerPrefs.HasKey("SN"))
+        {
+            GameManager.currentScenario = PlayerPrefs.GetInt("SN");
+            GameManager.currentStage = PlayerPrefs.GetInt("ST");
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
+        else
+        {
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
     }
 
     private void Start()
@@ -93,7 +103,7 @@ public class MapCreate : MonoBehaviour
         // 맵크기에 맞게 카메라 거리 설정
         AdjustCameraSize(mapX, mapY);
 
-        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2)); // 
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2) + mapBox.transform.position.x, GameManager.gridSize * (mapY / 2) + mapBox.transform.position.y); // 
 
         for (int y = 0; y < mapData.Walls.Count; y++)
         {
@@ -107,7 +117,7 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2) + mapBox.transform.position.x, GameManager.gridSize * (mapY / 2) + mapBox.transform.position.y);
 
         for (int y = 0; y < mapData.Numbers.Count; y++)
         {
@@ -153,7 +163,7 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2) + mapBox.transform.position.x, GameManager.gridSize * (mapY / 2) + mapBox.transform.position.y);
 
         for (int y = 0; y < mapData.Boxes.Count; y++)
         {
@@ -170,7 +180,7 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2) + mapBox.transform.position.x, GameManager.gridSize * (mapY / 2) + mapBox.transform.position.y);
 
         Vector2 playerPosition = mapData.PlayerPosition;
         Instantiate(
@@ -179,7 +189,7 @@ public class MapCreate : MonoBehaviour
             Quaternion.identity, mapBox.transform
         );
 
-        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+        renderPos = new Vector2(-GameManager.gridSize * (mapX / 2) + mapBox.transform.position.x, GameManager.gridSize * (mapY / 2) + mapBox.transform.position.y);
 
         Vector2 DoorPosition = mapData.DoorPosition;
         GameObject doorObj = Instantiate(
@@ -196,9 +206,11 @@ public class MapCreate : MonoBehaviour
     private void AdjustCameraSize(float mapWidth, float mapHeight)
     {
         Camera mainCamera = Camera.main;
+        Camera uiCamera = GameObject.FindWithTag("UiCamera").GetComponent<Camera>();
 
         // 카메라의 Size를 맵의 최대 길이에 맞게 설정
-        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight);
+        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight) + 2;
+        uiCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight) + 2;
     }
 
     void MapSuvCreate(string[] splitText)

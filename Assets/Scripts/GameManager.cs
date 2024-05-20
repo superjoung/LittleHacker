@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     // 지금 진행하고 있는 스테이지 및 시나리오 갱신
     static public int currentScenario = 1;
     static public int currentStage = 1;
+    static public int maxScenario = 3;
+    static public int maxStaage = 15;
     static public int playerTurn = 0;
     static public float gridSize = 1;
 
@@ -41,7 +43,7 @@ public class GameManager : MonoBehaviour
     public void StageClear()
     {
         currentStage++;
-
+        PlayerPrefs.SetInt("" + currentScenario.ToString() + "-" + currentStage.ToString(), 1);
         mapCreate.Initialize("SN_" + currentScenario.ToString() + "_ST_" + currentStage.ToString());
         player.Initialized();
         player = GameObject.FindWithTag("Player").GetComponent<Player>();

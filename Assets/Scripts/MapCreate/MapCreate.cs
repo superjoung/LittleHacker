@@ -19,8 +19,18 @@ public class MapCreate : MonoBehaviour
 
     private void Awake()
     {
-        stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
-        Initialize(stageInfo);
+        if (PlayerPrefs.HasKey("SN"))
+        {
+            GameManager.currentScenario = PlayerPrefs.GetInt("SN");
+            GameManager.currentStage = PlayerPrefs.GetInt("ST");
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
+        else
+        {
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
     }
 
     private void Start()

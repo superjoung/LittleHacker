@@ -16,13 +16,13 @@ public class Option : MonoBehaviour
 
     private void Initialized()
     {
-        if (SceneManager.sceneCount == 2) // 메인 게임 씬
+        if (SceneManager.GetActiveScene().buildIndex == 2) // 메인 게임 씬
         {
             GameObject.Find("OptionButton").GetComponent<Button>().onClick.AddListener(() => OptionButtonClick());
             optionSettingPanel = GameObject.Find("OptionSettingBox").transform.GetChild(0).gameObject;
         }
 
-        else if(SceneManager.sceneCount == 1)
+        else if(SceneManager.GetActiveScene().buildIndex == 0) // 초기 화면
         {
             GameObject.Find("OptionButton").GetComponent<Button>().onClick.AddListener(() => OptionButtonClick());
             optionSettingPanel = GameObject.Find("Option").transform.GetChild(0).gameObject;

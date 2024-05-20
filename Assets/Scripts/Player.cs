@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using System.Xml;
-using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 
 public class revertObject
 {
@@ -103,6 +103,7 @@ public class Player : MonoBehaviour
 
         GameObject.Find("BackStartButton").GetComponent<Button>().onClick.AddListener(() => BackStartButtonClick());
         GameObject.Find("ReStartButton").GetComponent<Button>().onClick.AddListener(() => ReStartButtonClick());
+        GameObject.Find("HomeButton").GetComponent<Button>().onClick.AddListener(() => HomeButtonClick());
     }
 
     void TouchSetup()
@@ -299,6 +300,7 @@ public class Player : MonoBehaviour
             {
                 if(hitItem.transform.GetComponent<ObjectData>().num == formulaTotalNum)
                 {
+                    // stageClear
                     gameManager.StageClear();
                     Destroy(hitItem.transform.gameObject);
                 }
@@ -360,6 +362,11 @@ public class Player : MonoBehaviour
             if(count % 2 == 0) Debug.Log("iter count " + count + " : " + formula[count].num);
             else if (count % 2 == 1) Debug.Log("iter count " + count + " : " + formula[count].oper);
         }
+    }
+
+    void HomeButtonClick()
+    {
+        SceneManager.LoadScene(1);
     }
 
     // 씬 다시 리로드 Initialize 실행해야함

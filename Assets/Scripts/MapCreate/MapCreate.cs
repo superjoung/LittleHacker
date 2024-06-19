@@ -129,6 +129,12 @@ public class MapCreate : MonoBehaviour
                     numberObj.GetComponent<ObjectData>().num = int.Parse(mapData.Numbers[y][x]);
                     numberObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Numbers[y][x];
                 }
+                if (!string.IsNullOrEmpty(mapData.Doors[y][x]))
+                {
+                    GameObject numberObj = Instantiate(renderObj[8], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
+                    numberObj.GetComponent<ObjectData>().num = int.Parse(mapData.Doors[y][x]);
+                    numberObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Doors[y][x];
+                }
                 if (!string.IsNullOrEmpty(mapData.Operators[y][x]))
                 {
                     GameObject operatorObj;
@@ -191,6 +197,7 @@ public class MapCreate : MonoBehaviour
 
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2) + mapBox.transform.position.x, GameManager.gridSize * (mapY / 2) + mapBox.transform.position.y);
 
+        /* 구버전 Door 소환 코드
         Vector2 DoorPosition = mapData.DoorPosition;
         GameObject doorObj = Instantiate(
             renderObj[8],
@@ -199,6 +206,7 @@ public class MapCreate : MonoBehaviour
         );
         doorObj.GetComponent<ObjectData>().num = mapData.DoorValue;
         doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
+        */
 
     }
 

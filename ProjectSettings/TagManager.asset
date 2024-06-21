@@ -9,6 +9,9 @@ TagManager:
   - Wall
   - Door
   - Box
+  - AllOperator
+  - Trap
+  - Gate
   layers:
   - Default
   - TransparentFX
@@ -20,8 +23,8 @@ TagManager:
   - Item
   - Door
   - Trigger
-  - 
-  - 
+  - Gate
+  - Trap
   - 
   - 
   - 

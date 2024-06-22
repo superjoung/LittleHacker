@@ -17,12 +17,24 @@ public class MapCreate : MonoBehaviour
     private GameObject mapBox; // map 오브젝트 내에 요소를 담기위한 박스
     private string stageInfo;
 
-
+    private void Awake()
+    {
+        if (PlayerPrefs.HasKey("SN"))
+        {
+            GameManager.currentScenario = PlayerPrefs.GetInt("SN");
+            GameManager.currentStage = PlayerPrefs.GetInt("ST");
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
+        else
+        {
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
+    }
 
     private void Start()
     {
-        stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
-        Initialize(stageInfo);
         player = GameObject.FindWithTag("Player").GetComponent<Player>();
     }
 
@@ -91,8 +103,6 @@ public class MapCreate : MonoBehaviour
         // 맵크기에 맞게 카메라 거리 설정
         AdjustCameraSize(mapX, mapY);
 
-
-
         // 렌더링 기준점 이동하면서 렌더링하게 됨
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
 
@@ -109,10 +119,9 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-
-
         // 렌더링 기준점 초기화
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
 
         // json파일에서 숫자와 연산자 렌더링
         for (int y = 0; y < mapData.Numbers.Count; y++)
@@ -160,9 +169,9 @@ public class MapCreate : MonoBehaviour
         }
 
 
-
         // 렌더링 기준점 초기화
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
 
         // 박스 렌더링
         for (int y = 0; y < mapData.Boxes.Count; y++)
@@ -179,7 +188,6 @@ public class MapCreate : MonoBehaviour
             renderPos.x = -GameManager.gridSize * (mapX / 2);
             renderPos.y -= GameManager.gridSize;
         }
-
 
 
         // 렌더링 기준점 초기화
@@ -258,10 +266,9 @@ public class MapCreate : MonoBehaviour
             Quaternion.identity, mapBox.transform
         );
 
-
-
         // 렌더링 기준점 초기화
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
 
         // 문위치에 최종값과 함께 렌더링
         Vector2 DoorPosition = mapData.DoorPosition;
@@ -279,9 +286,11 @@ public class MapCreate : MonoBehaviour
     private void AdjustCameraSize(float mapWidth, float mapHeight)
     {
         Camera mainCamera = Camera.main;
+        Camera uiCamera = GameObject.FindWithTag("UiCamera").GetComponent<Camera>();
 
         // 카메라의 Size를 맵의 최대 길이에 맞게 설정
-        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight);
+        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight) + 2;
+        uiCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight) + 2;
     }
 
     void MapSuvCreate(string[] splitText)

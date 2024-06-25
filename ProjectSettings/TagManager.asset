@@ -9,20 +9,22 @@ TagManager:
   - Wall
   - Door
   - Box
-  - UiCamera
+  - AllOperator
+  - Trap
+  - Gate
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - UpperUI
+  - Player
   - Water
   - UI
-  - Player
   - Wall
   - Item
   - Door
   - Trigger
-  - 
+  - Gate
+  - Trap
   - 
   - 
   - 

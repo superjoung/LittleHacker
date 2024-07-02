@@ -99,8 +99,8 @@ public class MapCreate : MonoBehaviour
         }
 
         // 맵의 x, y크기 가져오기
-        mapX = mapData.Walls[0].Count - 1;
-        mapY = mapData.Walls.Count - 1;
+        mapX = (mapData.Walls[0].Count - 1);
+        mapY = (mapData.Walls.Count - 1) + mapBox.transform.position.y;
 
         // 맵크기에 맞게 카메라 거리 설정
         AdjustCameraSize(mapX, mapY);

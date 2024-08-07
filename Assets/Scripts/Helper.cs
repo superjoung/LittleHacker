@@ -8,19 +8,5 @@ using UnityEngine;
 
 public class Helper : MonoBehaviour
 {
-    public Player player;
-    public Vector2 moveDir;
-    private Vector2 tmpMoveDir;
-    public float moveSpeed;
-
-    // Update is called once per frame
-    void Update()
-    {
-        moveDir = player.moveDir;
-    }
-
-    void HelperMove()
-    {
-        
-    }
+    
 }

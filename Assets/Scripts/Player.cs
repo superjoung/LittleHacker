@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Xml;
 using UnityEngine.SceneManagement;
+using LittleRay;
 
 // 되돌리기 때 사용하는 클래스
 public class revertObject
@@ -292,6 +293,7 @@ public class Player : MonoBehaviour
     {
         int layerMask = (1 << LayerMask.NameToLayer("Item")) + (1 << LayerMask.NameToLayer("Door"));
         RaycastHit2D hitItem = Physics2D.Raycast(transform.position, moveDir, 0.3f, layerMask);
+
         if (hitItem)
         {
             ObjectData OD = hitItem.transform.GetComponent<ObjectData>();

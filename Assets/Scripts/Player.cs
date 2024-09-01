@@ -8,15 +8,19 @@ using UnityEngine.UI;
 using TMPro;
 using System.Xml;
 using UnityEngine.SceneManagement;
+using LittleRay;
 
+// 되돌리기 때 사용하는 클래스
 public class revertObject
 {
+    // 상호작용하는 오브젝트의 유형 enum을 사용해 되돌리기때 사용해야하는 데이터 구분
     public enum ERevertType {formula, box};
+    // 되돌려여야하는 오브젝트 리스트업
     public List<GameObject> objects = new List<GameObject>();
     public List<Vector2> transforms = new List<Vector2>();
     public List<ERevertType> revertTypes = new List<ERevertType>();
+    // 이동하기 전 플레이어 위치 정보 담아두기
     public Vector2 playerPos;
-
     public bool formulaCalcule = false;
 
     public revertObject(List<GameObject> objects, List<Vector2> transforms, List<ERevertType> revertTypes, Vector2 playerPos, bool formulaCalcule)
@@ -65,25 +69,21 @@ public class Player : MonoBehaviour
 
     public void Start()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        int count = 0;
-        foreach(Transform formulaInfoUi in GameObject.Find("FormulaBackGround").transform)
-        {
-            formulaUi[count] = formulaInfoUi.GetComponent<TMP_Text>();
-            count++;
-        }
+        InputGameObject();
         Initialized();
     }
 
     public void Update()
     {
         TouchSetup();
-        if (!GameManager.talkStart)
+        // 대화 시작했을 경우 플레이어 기물 움직임 멈추기 벽까지 이동 o
+        if (!Managers.Text.isTalk)
         {
             PlayerMoveDIr();
             MoveKeyBind();
         }
-
+        
+        // 임시 키 바인드 추후 삭제 예정
         if (Input.GetKeyDown(KeyCode.Q))
         {
             CheckFormula();
@@ -95,6 +95,23 @@ public class Player : MonoBehaviour
         if (moveDirs.Count != 0) PlayerMove();
     }
 
+    // 초기 시작시 데이터 넣어주기
+    private void InputGameObject()
+    {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        int count = 0;
+        foreach (Transform formulaInfoUi in GameObject.Find("FormulaBackGround").transform)
+        {
+            formulaUi[count] = formulaInfoUi.GetComponent<TMP_Text>();
+            count++;
+        }
+
+        GameObject.Find("BackStartButton").GetComponent<Button>().onClick.AddListener(() => BackStartButtonClick());
+        GameObject.Find("ReStartButton").GetComponent<Button>().onClick.AddListener(() => ReStartButtonClick());
+        GameObject.Find("HomeButton").GetComponent<Button>().onClick.AddListener(() => HomeButtonClick());
+    }
+
+    // 초기 리셋함수 스테이지가 변경될때마다 사용해줄 예정
     public void Initialized()
     {
         formula.Clear();
@@ -103,12 +120,9 @@ public class Player : MonoBehaviour
         formulaUi[2].text = "";
         formulaTotalNum = 0;
         backUpRevert.Clear();
-
-        GameObject.Find("BackStartButton").GetComponent<Button>().onClick.AddListener(() => BackStartButtonClick());
-        GameObject.Find("ReStartButton").GetComponent<Button>().onClick.AddListener(() => ReStartButtonClick());
-        GameObject.Find("HomeButton").GetComponent<Button>().onClick.AddListener(() => HomeButtonClick());
     }
 
+    // 화면 터치 함수 마우스 클릭에 따라 playerTouch 변경
     void TouchSetup()
     {
 #if UNITY_EDITOR
@@ -132,6 +146,7 @@ public class Player : MonoBehaviour
 #endif
     }
 
+    // 키보드 테스트 환경 함수 추후 삭제 예정
     void MoveKeyBind()
     {
         if (playerTouch == ETouchState.None)
@@ -201,13 +216,15 @@ public class Player : MonoBehaviour
     // player가 움직일 때 벽에 가로막힘 판정에 대해 계산
     void PlayerMove()
     {
+        // layerMask에 따라 벽처리로 해줘야하는 반경 계산
         int layerMask = (1 << LayerMask.NameToLayer("Wall")) + (1 << LayerMask.NameToLayer("Item"));
         moveDir = moveDirs[0];
         PlayerGetItem();
-        RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.6f, layerMask);
-        RaycastHit2D hitDoor = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Door"));
-        RaycastHit2D hitTrigger = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Trigger"));
+        RaycastHit2D hitWall = Physics2D.Raycast(transform.position, moveDir, 0.6f, layerMask); // 벽
+        RaycastHit2D hitDoor = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Door")); // 문
+        RaycastHit2D hitTrigger = Physics2D.Raycast(transform.position, moveDir, 0.6f, LayerMask.GetMask("Trigger")); // 박스
 
+        // player가 실제로 움직이게 하는 줄
         transform.Translate(moveDir * playerMoveSpeed * Time.deltaTime);
 
         // box와 부딪쳤을 때 생기는 스크립트
@@ -276,6 +293,7 @@ public class Player : MonoBehaviour
     {
         int layerMask = (1 << LayerMask.NameToLayer("Item")) + (1 << LayerMask.NameToLayer("Door"));
         RaycastHit2D hitItem = Physics2D.Raycast(transform.position, moveDir, 0.3f, layerMask);
+
         if (hitItem)
         {
             ObjectData OD = hitItem.transform.GetComponent<ObjectData>();
@@ -305,7 +323,8 @@ public class Player : MonoBehaviour
                 if(hitItem.transform.GetComponent<ObjectData>().num == formulaTotalNum)
                 {
                     // stageClear
-                    GameManager.talkStart = GameManager.isClear = true;
+                    GameManager.isClear = true;
+                    Managers.Text.StartTalk();
                     Destroy(hitItem.transform.gameObject);
                 }
                 else

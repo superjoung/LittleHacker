@@ -49,6 +49,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
         if (Input.GetKeyDown(KeyCode.N) && GameManager.currentStage > 1)
         {
@@ -57,6 +58,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -64,6 +66,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
     }
 
@@ -283,7 +286,7 @@ public class MapCreate : MonoBehaviour
         doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
 
         // 플레이어 대화 시작
-        GameManager.talkStart = true;
+        Managers.Text.StartTalk();
     }
 
     // 맵의 해상도를 맞추는 임시함수

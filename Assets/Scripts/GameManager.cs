@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     static public int playerTurn = 0;
     static public float gridSize = 1;
     static public bool isClear = false;
+    static public bool isTextSkip = false;
 
     public GameObject Canvas; // 플레이어 화면보다 아래에 랜더링 되는 UI
     public GameObject UpperCanvas; // 플레이어 화면보다 위에 랜더링 되는 UI
@@ -28,8 +29,8 @@ public class GameManager : MonoBehaviour
     private bool isPrint = false;
     private bool talkAnchor = false;
 
-    public Player player;
-    public MapCreate mapCreate;
+    public static Player player;
+    public static MapCreate mapCreate;
 
     private void Awake()
     {

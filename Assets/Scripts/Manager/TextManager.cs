@@ -78,7 +78,7 @@ public class TextManager
 
         if (!SelectPrintText())
         {
-            isSkipText = true;
+            ClearTextBox();
             return false;
         }
 

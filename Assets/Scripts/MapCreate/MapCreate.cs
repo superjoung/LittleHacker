@@ -145,23 +145,15 @@ public class MapCreate : MonoBehaviour
                     switch (mapData.Operators[y][x]) {
                         case "+":
                             operatorObj = Instantiate(renderObj[4], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "+";
                             break;
                         case "-":
                             operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
                             break;
                         case "x":
                             operatorObj = Instantiate(renderObj[6], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "x";
                             break;
                         case "/":
                             operatorObj = Instantiate(renderObj[7], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
                             break;
                     }
                         

@@ -11,15 +11,19 @@ public class TextManager
     private int currentTextCount = 0;
     private int currentSn;
     private TMP_Text textPrintBox;
+    private float textPrintSpeed;
+    private bool isPrint;
+    private bool isSkipText;
 
     public bool isTalk;
-    public bool isSkip;
 
     public TextManager()
     {
         isTalk = false;
-        isSkip = false;
+        isPrint = false;
+        isSkipText = false;
         currentSn = 0;
+        currentTextCount = 0;
     }
 
     private void SetDictionary()
@@ -28,15 +32,16 @@ public class TextManager
         clear_Text = CSVReader.Read("SN_" + currentSn + "_Clear");
     }
 
-    private void SelectPrintText()
+    private bool SelectPrintText()
     {
-        if (currentSn != GameManager.currentScenario)
+        if (currentTexts.Count > 0) return true;
+        if (currentSn != GameManager.currentScenario)   
         {
             currentSn = GameManager.currentScenario;
             SetDictionary();
         }
 
-        if (GameManager.isClear)
+        if (!GameManager.isClear)
         {
             for (int count = 0; count < deClear_Text.Count; count++)
             {
@@ -57,49 +62,76 @@ public class TextManager
                 }
             }
         }
-    }
-    
-    public void StartSkip()
-    {
-        if (isTalk)
-        {
-            isSkip = true;
-        }
+
+        if (currentTexts.Count == 0) return false;
+        else return true; 
     }
 
-    public void StartTalk(bool isSkip = false, float TextPrintSpeed = 0.1f)
+    public bool StartTalk(bool isSkip = false, float TextPrintSpeed = 0.1f)
     {
+        textPrintSpeed = TextPrintSpeed;
+        if (isSkipText)
+        {
+            ClearTextBox();
+            return false;
+        }
+
+        if (!SelectPrintText())
+        {
+            ClearTextBox();
+            return false;
+        }
+
         isTalk = true;
-        SelectPrintText();
 
         if (textPrintBox == null) textPrintBox = GameObject.Find("TalkText").GetComponent<TMP_Text>();
 
         if (isSkip)
         {
-            textPrintBox.text = currentTexts[-1].ToString();
-            isTalk = false;
-            return;
+            textPrintBox.text = currentTexts[0].ToString();
+            isSkipText = true;
+            return false;
+        }
+        if(!isPrint) CoroutineHelper.StartCoroutine(printText());
+        else textPrintSpeed = 0;
+        return true;
+    }
+
+    public void ClearTextBox()
+    {
+        isSkipText = false;
+        isTalk = false;
+        textPrintBox.text = "";
+        if (GameManager.isClear)
+        {
+            GameManager.isClear = false;
+            GameManager.StageClear();
         }
     }
 
-    IEnumerator printText(float TextPrintSpeed)
+    IEnumerator printText()
     {
+        isPrint = true;
         textPrintBox.text = "";
         int count = 0;
         string text = currentTexts[currentTextCount].ToString();
 
         while (count != text.Length)
         {
-            if (isSkip) TextPrintSpeed = 0;
             if (count < text.Length)
             {
                 textPrintBox.text += text[count].ToString();
                 count++;
             }
-            yield return new WaitForSeconds(TextPrintSpeed);
+            yield return new WaitForSeconds(textPrintSpeed);
         }
-
-        isSkip = false;
-        isTalk = false;
+        currentTextCount++;
+        if (currentTexts.Count == currentTextCount)
+        {
+            currentTexts.Clear();
+            currentTextCount = 0;
+            isSkipText = true;
+        }
+        isPrint = false;
     }
 }

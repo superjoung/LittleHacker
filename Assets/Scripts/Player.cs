@@ -77,7 +77,7 @@ public class Player : MonoBehaviour
     {
         TouchSetup();
         // 대화 시작했을 경우 플레이어 기물 움직임 멈추기 벽까지 이동 o
-        if (!GameManager.talkStart)
+        if (!Managers.Text.isTalk)
         {
             PlayerMoveDIr();
             MoveKeyBind();
@@ -323,7 +323,8 @@ public class Player : MonoBehaviour
                 if(hitItem.transform.GetComponent<ObjectData>().num == formulaTotalNum)
                 {
                     // stageClear
-                    GameManager.talkStart = GameManager.isClear = true;
+                    GameManager.isClear = true;
+                    Managers.Text.StartTalk();
                     Destroy(hitItem.transform.gameObject);
                 }
                 else

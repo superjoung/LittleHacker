@@ -49,6 +49,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
         if (Input.GetKeyDown(KeyCode.N) && GameManager.currentStage > 1)
         {
@@ -57,6 +58,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -64,6 +66,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
     }
 
@@ -142,23 +145,15 @@ public class MapCreate : MonoBehaviour
                     switch (mapData.Operators[y][x]) {
                         case "+":
                             operatorObj = Instantiate(renderObj[4], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "+";
                             break;
                         case "-":
                             operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
                             break;
                         case "x":
                             operatorObj = Instantiate(renderObj[6], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "x";
                             break;
                         case "/":
                             operatorObj = Instantiate(renderObj[7], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
                             break;
                     }
                         
@@ -283,7 +278,7 @@ public class MapCreate : MonoBehaviour
         doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
 
         // 플레이어 대화 시작
-        GameManager.talkStart = true;
+        Managers.Text.StartTalk();
     }
 
     // 맵의 해상도를 맞추는 임시함수

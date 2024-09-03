@@ -356,10 +356,6 @@ MonoBehaviour:
   Canvas: {fileID: 4326753268124575040, guid: 25cb1d441a1b16c4aa91429fcbf62c3f, type: 3}
   UpperCanvas: {fileID: 6109294043795579971, guid: 2e96fecd0e1190a4eba1fce0f38fef39, type: 3}
   UiCamera: {fileID: 6432050439392580738, guid: 4c20da57fe65b0b40a4c132ab6d185fb, type: 3}
-  talkTextBox: {fileID: 0}
-  textPrintSpeed: 0.1
-  player: {fileID: 0}
-  mapCreate: {fileID: 0}
 --- !u!114 &1430440662
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ public enum SoundType
     EFFECT,
 }
 
-public class SoundManager
+public class SoundManager : Singleton<SoundManager>
 {
     private AudioMixer audioMixer;
     private float currentBGMVolume, currentEffectVolume;
@@ -18,8 +18,8 @@ public class SoundManager
     private SoundBox soundBox;
     private List<TemporaySoundPlayer> instantiatedSounds;
 
-    // 초기 사운드 설정 리소스 폴더에서 불러와 초기값 설정 빌드 크기를 줄이기 위해 프리팹화 
-    public SoundManager()
+    // 초기 사운드 설정 리소스 폴더에서 불러와 초기값 설정 빌드 크기를 줄이기 위해 프리팹화
+    public void Start()
     {
         soundBox = Resources.Load<SoundBox>("Sound/Sounds");
         audioMixer = soundBox.audioMixer;
@@ -34,7 +34,7 @@ public class SoundManager
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
         OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single);
-        InitVoumes(-2, -2);
+        InitVoumes(-10, -10);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -71,7 +71,7 @@ public class SoundManager
             if (audioPlayer.ClipName == clipName)
             {
                 instantiatedSounds.Remove(audioPlayer);
-                //Destroy(audioPlayer.gameObject);
+                Destroy(audioPlayer.gameObject);
                 return;
             }
         }

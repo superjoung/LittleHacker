@@ -358,8 +358,6 @@ MonoBehaviour:
   UiCamera: {fileID: 6432050439392580738, guid: 4c20da57fe65b0b40a4c132ab6d185fb, type: 3}
   talkTextBox: {fileID: 0}
   textPrintSpeed: 0.1
-  player: {fileID: 0}
-  mapCreate: {fileID: 0}
 --- !u!114 &1430440662
 MonoBehaviour:
   m_ObjectHideFlags: 0

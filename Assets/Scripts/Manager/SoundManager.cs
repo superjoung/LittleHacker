@@ -34,7 +34,6 @@ public class SoundManager : Singleton<SoundManager>
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
         OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single);
-        InitVoumes(-10, -10);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

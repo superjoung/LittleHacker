@@ -12,13 +12,15 @@ TagManager:
   - AllOperator
   - Trap
   - Gate
+  - UiCamera
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - UpperUI
   - Water
   - UI
+  - Player
   - Wall
   - Item
   - Door
@@ -26,7 +28,6 @@ TagManager:
   - Gate
   - Trap
   - AllOperator
-  - 
   - 
   - 
   - 

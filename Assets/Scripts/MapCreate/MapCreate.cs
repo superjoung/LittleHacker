@@ -13,17 +13,31 @@ public class MapCreate : MonoBehaviour
     private float mapY;
 
     public Player player;
+    public GameManager gameManager;
     private Vector2 renderPos; // 렌더링 할 좌표로 이용
     private GameObject mapBox; // map 오브젝트 내에 요소를 담기위한 박스
     private string stageInfo;
 
-
+    private void Awake()
+    {
+        if (PlayerPrefs.HasKey("SN"))
+        {
+            GameManager.currentScenario = PlayerPrefs.GetInt("SN");
+            GameManager.currentStage = PlayerPrefs.GetInt("ST");
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
+        else
+        {
+            stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
+            Initialize(stageInfo);
+        }
+    }
 
     private void Start()
     {
-        stageInfo = "SN_" + GameManager.currentScenario.ToString() + "_ST_" + GameManager.currentStage.ToString();
-        Initialize(stageInfo);
         player = GameObject.FindWithTag("Player").GetComponent<Player>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     private void Update()
@@ -35,6 +49,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
         if (Input.GetKeyDown(KeyCode.N) && GameManager.currentStage > 1)
         {
@@ -43,6 +58,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -50,6 +66,7 @@ public class MapCreate : MonoBehaviour
 
             Initialize(stageInfo);
             player.Initialized();
+            Managers.Text.StartTalk(true);
         }
     }
 
@@ -85,13 +102,11 @@ public class MapCreate : MonoBehaviour
         }
 
         // 맵의 x, y크기 가져오기
-        mapX = mapData.Walls[0].Count - 1;
-        mapY = mapData.Walls.Count - 1;
+        mapX = (mapData.Walls[0].Count - 1);
+        mapY = (mapData.Walls.Count - 1) + mapBox.transform.position.y;
 
         // 맵크기에 맞게 카메라 거리 설정
         AdjustCameraSize(mapX, mapY);
-
-
 
         // 렌더링 기준점 이동하면서 렌더링하게 됨
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
@@ -109,10 +124,9 @@ public class MapCreate : MonoBehaviour
             renderPos.y -= GameManager.gridSize;
         }
 
-
-
         // 렌더링 기준점 초기화
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
 
         // json파일에서 숫자와 연산자 렌더링
         for (int y = 0; y < mapData.Numbers.Count; y++)
@@ -131,23 +145,15 @@ public class MapCreate : MonoBehaviour
                     switch (mapData.Operators[y][x]) {
                         case "+":
                             operatorObj = Instantiate(renderObj[4], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "+";
                             break;
                         case "-":
                             operatorObj = Instantiate(renderObj[5], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "-";
                             break;
                         case "x":
                             operatorObj = Instantiate(renderObj[6], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "x";
                             break;
                         case "/":
                             operatorObj = Instantiate(renderObj[7], new Vector3(renderPos.x, renderPos.y, -1), Quaternion.identity, mapBox.transform);
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.Operators[y][x];
-                            operatorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = "/";
                             break;
                     }
                         
@@ -160,9 +166,9 @@ public class MapCreate : MonoBehaviour
         }
 
 
-
         // 렌더링 기준점 초기화
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
 
         // 박스 렌더링
         for (int y = 0; y < mapData.Boxes.Count; y++)
@@ -179,7 +185,6 @@ public class MapCreate : MonoBehaviour
             renderPos.x = -GameManager.gridSize * (mapX / 2);
             renderPos.y -= GameManager.gridSize;
         }
-
 
 
         // 렌더링 기준점 초기화
@@ -258,10 +263,9 @@ public class MapCreate : MonoBehaviour
             Quaternion.identity, mapBox.transform
         );
 
-
-
         // 렌더링 기준점 초기화
         renderPos = new Vector2(-GameManager.gridSize * (mapX / 2), GameManager.gridSize * (mapY / 2));
+
 
         // 문위치에 최종값과 함께 렌더링
         Vector2 DoorPosition = mapData.DoorPosition;
@@ -273,15 +277,19 @@ public class MapCreate : MonoBehaviour
         doorObj.GetComponent<ObjectData>().num = mapData.DoorValue;
         doorObj.transform.GetChild(0).GetComponent<TMP_Text>().text = mapData.DoorValue.ToString();
 
+        // 플레이어 대화 시작
+        Managers.Text.StartTalk();
     }
 
     // 맵의 해상도를 맞추는 임시함수
     private void AdjustCameraSize(float mapWidth, float mapHeight)
     {
         Camera mainCamera = Camera.main;
+        Camera uiCamera = GameObject.FindWithTag("UiCamera").GetComponent<Camera>();
 
         // 카메라의 Size를 맵의 최대 길이에 맞게 설정
-        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight);
+        mainCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight) + 2;
+        uiCamera.orthographicSize = Mathf.Max(mapWidth, mapHeight) + 2;
     }
 
     void MapSuvCreate(string[] splitText)

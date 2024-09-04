@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4925424100944495533}
   - component: {fileID: 6308783094442625997}
   - component: {fileID: 8016876590530283359}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: -5686071391384010963, guid: ff05954d75c17f548a2f638dbbbd2d44, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -102,8 +102,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ff05954d75c17f548a2f638dbbbd2d44, type: 2}
+  m_sharedMaterial: {fileID: -5686071391384010963, guid: ff05954d75c17f548a2f638dbbbd2d44, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -184,7 +184,7 @@ GameObject:
   - component: {fileID: 6982596478425122121}
   - component: {fileID: -2514616317227910607}
   - component: {fileID: 4687059395767653866}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Door
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -248,7 +248,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 6c52dcc7ee5e23b4eb1b9099a2469e5a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 470c7d5e9aa550c48be12414f1f424b8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -274,6 +274,9 @@ MonoBehaviour:
   num: 0
   doorNum: 0
   oper: 
+  boxTrigger: 0
+  boxStop: 0
+  boxMoveDir: {x: 0, y: 0}
 --- !u!61 &4687059395767653866
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -291,7 +294,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.0039216, y: 1.0039216}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 5.12, y: 5.12}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
